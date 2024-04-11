@@ -12,10 +12,77 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "compiler-explorer",
+          "title": "Compiler Explorer",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "compiler-explorer": [
+        {
+          "id": "compiler-explorer.view",
+          "name": "Compiler Explorer"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "vscode-compiler-explorer.helloWorld",
-        "title": "Hello World"
+        "command": "compiler-explorer.AddCompiler",
+        "title": "Add a New Compiler Instance",
+        "category": "Compiler Explorer",
+        "icon": "$(add)"
+      },
+      {
+        "command": "compiler-explorer.CompileAll",
+        "title": "Compile All Instances",
+        "category": "Compiler Explorer",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "compiler-explorer.RemoveAll",
+        "title": "Remove All Instances",
+        "category": "Compiler Explorer",
+        "icon": "$(trashcan)"
+      },
+      {
+        "command": "compiler-explorer.Clear",
+        "title": "Clear All Webview Panels",
+        "category": "Compiler Explorer",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "compiler-explorer.GetLink",
+        "title": "Copy the Unique Link to Clipboard",
+        "category": "Compiler Explorer",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "compiler-explorer.LoadLink",
+        "title": "Load the Compiler Information from Link",
+        "category": "Compiler Explorer",
+        "icon": "$(link)"
+      },
+      {
+        "command": "compiler-explorer.Remove",
+        "title": "Remove the Current Instance",
+        "category": "Compiler Explorer",
+        "icon": "$(trashcan)"
+      },
+      {
+        "command": "compiler-explorer.Compile",
+        "title": "Compile the Current Instance",
+        "category": "Compiler Explorer",
+        "icon": "$(run)"
+      },
+      {
+        "command": "compiler-explorer.Clone",
+        "title": "Clone the Current Instance",
+        "category": "Compiler Explorer",
+        "icon": "$(clone)"
       }
     ]
   },
@@ -46,5 +113,8 @@
     "typescript": "^5.3.3",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "axios": "^1.6.8"
   }
 }
