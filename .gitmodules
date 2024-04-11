@@ -1,0 +1,3 @@
+[submodule "compiler-explorer"]
+	path = compiler-explorer
+	url = git@github.com:compiler-explorer/compiler-explorer.git
