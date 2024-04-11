@@ -63,8 +63,11 @@ export class TreeItem implements vscode.TreeItem {
         const { label, context, children, attr, instance } = node;
         this.label = label as string;
 
-        if (instance && attr !== "fitter" && context !== "instance" && context !== "fitter") {
-            this.label = `${label}: "${instance[attr as keyof CompilerInstance]}"`;
+        if (instance && attr) {
+            const value = instance[attr as keyof CompilerInstance];
+            if (typeof value === "string") {
+                this.label = `${label}: "${value}"`;
+            }
         }
 
         this.attr = attr;

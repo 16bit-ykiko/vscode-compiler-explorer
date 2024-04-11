@@ -17,7 +17,6 @@ export async function register(context: vscode.ExtensionContext) {
         if (attr !== "copy") {
             fitter[attr] = !fitter[attr];
         }
-        console.log(fitter);
         provider.refresh();
     });
 
