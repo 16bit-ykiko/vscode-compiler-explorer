@@ -82,9 +82,79 @@
         "command": "compiler-explorer.Clone",
         "title": "Clone the Current Instance",
         "category": "Compiler Explorer",
-        "icon": "$(clone)"
+        "icon": "$(expand-all)"
+      },
+      {
+        "command": "compiler-explorer.SelectCompiler",
+        "title": "Select the Compiler",
+        "category": "Compiler Explorer",
+        "icon": "$(list-selection)"
+      },
+      {
+        "command": "compiler-explorer.GetInput",
+        "title": "Get the Input Text",
+        "category": "Compiler Explorer",
+        "icon": "$(pencil)"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "compiler-explorer.AddCompiler",
+          "when": "view == compiler-explorer.view",
+          "group": "navigation@2"
+        },
+        {
+          "command": "compiler-explorer.CompileAll",
+          "when": "view == compiler-explorer.view",
+          "group": "navigation@1"
+        },
+        {
+          "command": "compiler-explorer.GetLink",
+          "when": "view == compiler-explorer.view",
+          "group": "navigation@3"
+        },
+        {
+          "command": "compiler-explorer.LoadLink",
+          "when": "view == compiler-explorer.view"
+        },
+        {
+          "command": "compiler-explorer.RemoveAll",
+          "when": "view == compiler-explorer.view"
+        },
+        {
+          "command": "compiler-explorer.Clear",
+          "when": "view == compiler-explorer.view"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "compiler-explorer.Compile",
+          "when": "view == compiler-explorer.view && viewItem == instance",
+          "group": "inline@1"
+        },
+        {
+          "command": "compiler-explorer.Clone",
+          "when": "view == compiler-explorer.view && viewItem == instance",
+          "group": "inline@2"
+        },
+        {
+          "command": "compiler-explorer.Remove",
+          "when": "view == compiler-explorer.view && viewItem == instance",
+          "group": "inline@3"
+        },
+        {
+          "command": "compiler-explorer.SelectCompiler",
+          "when": "view == compiler-explorer.view && viewItem == select",
+          "group": "inline@4"
+        },
+        {
+          "command": "compiler-explorer.GetInput",
+          "when": "view == compiler-explorer.view && viewItem == text",
+          "group": "inline@5"
+        }
+      ]
+    }
   },
   "scripts": {
     "install:all": "npm install && cd webview-ui && npm install",
