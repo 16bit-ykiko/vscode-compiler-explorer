@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { CompilerInstance, Fitter } from './instance';
+import { CompilerInstance, Filter } from './instance';
 
 class TreeNode {
-    attr?: string;
-    label?: string;
-    context?: string;
+    attr?: string; // Store the attribute name of the instance
+    label?: string; // The label to display in the tree view
+    context?: string; // The Tag to identify different nodes
     children?: TreeNode[];
     instance?: CompilerInstance;
 
@@ -27,7 +27,7 @@ class TreeNode {
             child.instance = instance;
         }
 
-        const fitters: TreeNode[] = [
+        const filters: TreeNode[] = [
             { label: "Compile to binary object", attr: "binaryObject" },
             { label: "Link to binary", attr: "binary" },
             { label: "Execute the code", attr: "execute" },
@@ -41,23 +41,23 @@ class TreeNode {
             { label: "Debug calls", attr: "debugCalls" }
         ];
 
-        for (const child of fitters) {
+        for (const child of filters) {
             child.context = "checkbox";
             child.instance = instance;
         }
 
-        result.children?.push({ label: "Fitter", context: "fitter", children: fitters });
+        result.children?.push({ label: "Filter", context: "filter", children: filters });
         return result;
     }
 }
 
 export class TreeItem implements vscode.TreeItem {
     attr?: string;
+    contextValue?: string;
+    label?: string | vscode.TreeItemLabel | undefined;
     instance?: CompilerInstance;
     checkboxState?: vscode.TreeItemCheckboxState;
     collapsibleState?: vscode.TreeItemCollapsibleState;
-    contextValue?: string;
-    label?: string | vscode.TreeItemLabel | undefined;
 
     constructor(node: TreeNode) {
         const { label, context, children, attr, instance } = node;
@@ -76,7 +76,7 @@ export class TreeItem implements vscode.TreeItem {
         this.collapsibleState = children ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
 
         if (node.context === "checkbox") {
-            const value = instance?.fitter[node.attr as keyof Fitter] as boolean;
+            const value = instance?.filters[node.attr as keyof Filter] as boolean;
             this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
         }
 

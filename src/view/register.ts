@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
 import { TreeViewProvider, TreeItem } from './treeview';
-import { CompilerInstance, Fitter } from './instance';
+import { CompilerInstance, Filter } from './instance';
 import { Compile, GetCompilers } from '../request/compile';
 import { GetShortLink, LoadShortLink } from '../request/link';
-import { assert } from 'console';
 
 export async function register(context: vscode.ExtensionContext) {
 
@@ -12,11 +11,9 @@ export async function register(context: vscode.ExtensionContext) {
 
     treeView.onDidChangeCheckboxState(async (event) => {
         const [[node]] = event.items;
-        const attr = node.attr as keyof Fitter;
-        const fitter = node.instance?.fitter as Fitter;
-        if (attr !== "copy") {
-            fitter[attr] = !fitter[attr];
-        }
+        const attr = node.attr as keyof Filter;
+        const filters = node.instance?.filters as Filter;
+        (filters[attr] as boolean) = !(filters[attr] as boolean);
         provider.refresh();
     });
 
@@ -31,8 +28,9 @@ export async function register(context: vscode.ExtensionContext) {
         const instances = provider.instances;
         for (const instance of instances) {
             const response = await Compile(instance);
-            console.log(response);
+
             // TODO: show response in a new tab
+            console.log(response);
         }
     });
 
@@ -70,8 +68,9 @@ export async function register(context: vscode.ExtensionContext) {
     const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async () => {
         const instance = provider.instances[0];
         const response = await Compile(instance);
-        console.log(response);
+
         // TODO: show response in a new tab
+        response.asm?.forEach(asm => console.log(asm.text));
     });
 
     const Clone = vscode.commands.registerCommand('compiler-explorer.Clone', async (node: TreeItem) => {
@@ -102,14 +101,12 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
-    const GetInputFile = vscode.commands.registerCommand('compiler-explorer.GetInputFile', async (node: TreeItem) => {
+    const GetInputFile = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeItem) => {
         const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text" });
         if (userInput) {
             const instance = node.instance as CompilerInstance;
             const attr = node.attr as keyof CompilerInstance;
-            if (attr !== "fitter" && attr !== "copy") {
-                instance[attr] = userInput;
-            }
+            (instance[attr] as string) = userInput;
             provider.refresh();
         }
     });
