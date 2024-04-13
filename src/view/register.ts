@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { TreeViewProvider, TreeItem } from './treeview';
+import { ShowWebview, ClearWebview } from './webview';
 import { CompilerInstance, Filter } from './instance';
+import { TreeViewProvider, TreeItem } from './treeview';
 import { Compile, GetCompilers } from '../request/compile';
 import { GetShortLink, LoadShortLink } from '../request/link';
 
@@ -26,11 +27,13 @@ export async function register(context: vscode.ExtensionContext) {
 
     const CompileAll = vscode.commands.registerCommand('compiler-explorer.CompileAll', async () => {
         const instances = provider.instances;
-        for (const instance of instances) {
-            const response = await Compile(instance);
 
-            // TODO: show response in a new tab
-            console.log(response);
+        const responses = instances.map(async instance => {
+            return await Compile(instance);
+        });
+
+        for (const response of responses) {
+            ShowWebview(await response);
         }
     });
 
@@ -55,7 +58,7 @@ export async function register(context: vscode.ExtensionContext) {
     });
 
     const Clear = vscode.commands.registerCommand('compiler-explorer.Clear', async () => {
-        // TODO: clear webview
+        ClearWebview();
     });
 
     context.subscriptions.push(AddCompiler);
@@ -68,9 +71,7 @@ export async function register(context: vscode.ExtensionContext) {
     const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async () => {
         const instance = provider.instances[0];
         const response = await Compile(instance);
-
-        // TODO: show response in a new tab
-        response.asm?.forEach(asm => console.log(asm.text));
+        ShowWebview(response);
     });
 
     const Clone = vscode.commands.registerCommand('compiler-explorer.Clone', async (node: TreeItem) => {

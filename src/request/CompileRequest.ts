@@ -7,7 +7,8 @@ export class ExecuteParameter {
 };
 
 export class CompilerOption {
-
+    executorRequest?: boolean;
+    skipAsm?: boolean;
 }
 
 export class CompileOptions {
@@ -17,6 +18,17 @@ export class CompileOptions {
     filters?: Filter;
     tools?: Tool[];
     libraries?: Library[];
+
+    static from(instance: CompilerInstance): CompileOptions {
+        let options = new CompileOptions();
+        options.userArguments = instance.options;
+        options.filters = instance.filters;
+        options.executeParameters = {
+            args: instance.exec === "" ? undefined : instance.exec.split(" "),
+            stdin: instance.stdin
+        };
+        return options;
+    }
 };
 
 export class CompileRequest {
@@ -30,14 +42,7 @@ export class CompileRequest {
         let request = new CompileRequest();
         request.source = await ReadSource(instance.inputFile);
         request.compiler = instance.compilerId;
-        request.options = {
-            userArguments: instance.options,
-            filters: instance.filters,
-            executeParameters: {
-                args: instance.exec === "" ? undefined : instance.exec.split(" "),
-                stdin: instance.stdin
-            }
-        };
+        request.options = CompileOptions.from(instance);
         return request;
     }
 }
@@ -50,12 +55,19 @@ export async function ReadSource(path: string): Promise<string> {
         }
 
         vscode.window.showErrorMessage("No active editor found");
-        throw new Error("No active editor found");
+        return "";
     }
 
     const uri = vscode.Uri.file(path);
+    console.log(uri);
     return await vscode.workspace.openTextDocument(uri).then(doc => doc.getText(), () => {
+        const openDocuments = vscode.workspace.textDocuments;
+        for (const doc of openDocuments) {
+            if (doc.fileName === path) {
+                return doc.getText();
+            }
+        }
         vscode.window.showErrorMessage("File not found: " + path);
-        throw new Error("File not found: " + path);
+        return "";
     });
 }

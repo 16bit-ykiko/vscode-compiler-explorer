@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CompilerInstance, Filter } from './instance';
 
+
 class TreeNode {
     attr?: string; // Store the attribute name of the instance
     label?: string; // The label to display in the tree view

@@ -14,8 +14,9 @@ export async function GetShortLink(input: CompilerInstance[]): Promise<string> {
 
 export async function LoadShortLink(url: string): Promise<CompilerInstance[]> {
     const response = await axios.get("https://godbolt.org/api/shortlinkinfo/" + url.split('/').pop());
-    return (response.data as ClientState).toInstances();
+    return ClientState.toInstances(response.data);
 }
+
 
 
 
