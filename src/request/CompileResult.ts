@@ -205,3 +205,15 @@ export type CompileResult = {
 
     source?: string; // todo: this is a crazy hack, we should get rid of it
 };
+
+export type ExecuteResult = {
+    code: number;
+    okToCache: boolean;
+    stdout: ResultLine[];
+    stderr: ResultLine[];
+    execTime: string;
+    processExecutionResultTime?: number;
+    timedOut: boolean;
+    languageId?: string;
+    truncated?: boolean;
+};
