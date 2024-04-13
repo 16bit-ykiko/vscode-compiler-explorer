@@ -16,7 +16,7 @@ window.vscode = vscode;
 export function useVsCode<Message extends MessageBase>(onMessageReceived: MessageReceivedHandler<Message>) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sendMessage = useCallback(
-    throttle((message: Message) => vscode.postMessage(message), 500)
+    throttle((message: Message) => vscode.postMessage(message), 100)
   , []);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function useVsCode<Message extends MessageBase>(onMessageReceived: Messag
       if (onMessageReceived) {
         onMessageReceived(event.data);
       }
-    }, 500);
+    }, 100);
 
     window.addEventListener('message', messageHandler);
 
