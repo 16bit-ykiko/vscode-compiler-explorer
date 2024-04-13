@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { CompileResult, ExecuteResult } from "../request/CompileResult";
 import path from 'node:path';
+import { throttle } from 'lodash';
 
 interface ShowWebviewParams {
     context: vscode.ExtensionContext;
@@ -40,12 +41,13 @@ export async function ShowWebview(params: ShowWebviewParams) {
         }
     });
 
-    const disposable = vscode.window.onDidChangeTextEditorSelection(event => {
+    const selectionChangedHandler = (event: vscode.TextEditorSelectionChangeEvent) => {
         if (event.textEditor === editor) {
             const lineNo = editor.selection.active.line;
             panel.webview.postMessage({ command: 'gotoLine', lineNo });
         }
-    });
+    };
+    const disposable = vscode.window.onDidChangeTextEditorSelection(throttle(selectionChangedHandler, 100));
 
     context.subscriptions.push(disposable);
 };
