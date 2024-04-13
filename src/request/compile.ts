@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { CompileResult } from "./CompileResult";
+import { CompileResult, ExecuteResult } from "./CompileResult";
 import { CompileRequest } from "./CompileRequest";
 import { CompilerInstance } from "../view/instance";
 
@@ -16,13 +16,26 @@ export async function GetCompilers() {
     return compilers;
 }
 
-export async function Compile(instance: CompilerInstance): Promise<CompileResult> {
+/**
+ * get compile result from given instance
+ * @param instance 
+ * @returns compile result
+ */
+export async function Compile(instance: CompilerInstance): Promise<{ compileResult: CompileResult, executeResult?: ExecuteResult }> {
     const request = await CompileRequest.from(instance);
     const url = "https://godbolt.org/api/compiler/" + instance.compilerId + "/compile";
     const headers = {
         'Content-Type': 'application/json; charset=utf-8'
     };
-    const response = await axios.post(url, JSON.stringify(request), { headers: headers });
-    return response.data;
+
+    const compileResult = await axios.post(url, JSON.stringify(request), { headers: headers });
+    if (request.options?.filters?.execute) {
+        request.options.compilerOptions = { executorRequest: true, skipAsm: true };
+        const executeResult = await axios.post(url, JSON.stringify(request), { headers: headers });
+        return { compileResult: compileResult.data, executeResult: executeResult.data };
+    }
+    return { compileResult: compileResult.data };
 }
+
+
 
