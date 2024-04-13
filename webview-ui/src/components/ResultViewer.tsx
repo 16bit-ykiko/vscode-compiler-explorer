@@ -9,7 +9,7 @@ export interface ResultViewerLine {
 }
 
 export interface ResultViewerProps {
-  results: ResultViewerLine[];
+  results?: ResultViewerLine[];
   onSelect: (lineNo: number) => void;
   text2html?: (text: string) => string;
 }
@@ -37,6 +37,10 @@ const ResultViewerImpl: ForwardRefRenderFunction<(line: number) => void, ResultV
   }, [lineNo2blocks, onSelect]);
 
   const renderResult = (props: ResultViewerProps) => {
+    if (!props.results) {
+      return;
+    }
+
     // Preprocess the lineNo of results to 0-based, to be consistent with vscode editor
     const results = props.results.map(x => {
       if (x.lineNo) {

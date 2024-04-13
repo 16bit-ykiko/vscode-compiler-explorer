@@ -4,6 +4,7 @@ import { CompilerInstance, Filter } from './instance';
 import { TreeViewProvider, TreeItem } from './treeview';
 import { Compile, GetCompilers } from '../request/compile';
 import { GetShortLink, LoadShortLink } from '../request/link';
+import { GetEditor } from '../request/CompileRequest';
 
 export async function register(context: vscode.ExtensionContext) {
 
@@ -28,12 +29,14 @@ export async function register(context: vscode.ExtensionContext) {
     const CompileAll = vscode.commands.registerCommand('compiler-explorer.CompileAll', async () => {
         const instances = provider.instances;
 
-        const responses = instances.map(async instance => {
-            return await Compile(instance);
-        });
-
-        for (const response of responses) {
-            ShowWebview(await response);
+        try {
+            const results = await Promise.all(instances.map(instances => Compile(instances)));
+            const editors = instances.map(instance => GetEditor(instance.inputFile));
+            for (const i in instances) {
+                ShowWebview({context, result: results[i], editor: editors[i]});
+            }
+        } catch (error: unknown) {
+            vscode.window.showErrorMessage((error as Error).message);
         }
     });
 
@@ -70,8 +73,13 @@ export async function register(context: vscode.ExtensionContext) {
 
     const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async () => {
         const instance = provider.instances[0];
-        const response = await Compile(instance);
-        ShowWebview(response);
+        try {
+            const result = await Compile(instance);
+            const editor = GetEditor(instance.inputFile);
+            ShowWebview({context, result, editor});
+        } catch (error: unknown) {
+            vscode.window.showErrorMessage((error as Error).message);
+        }
     });
 
     const Clone = vscode.commands.registerCommand('compiler-explorer.Clone', async (node: TreeItem) => {

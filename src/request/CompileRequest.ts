@@ -47,6 +47,24 @@ export class CompileRequest {
     }
 }
 
+export function GetEditor(path: string): vscode.TextEditor {
+    if (path === 'active') {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            return editor;
+        }
+        throw Error("No active editor found");
+    } else {
+        const uri = vscode.Uri.file(path);
+        for (const editor of vscode.window.visibleTextEditors) {
+            if (editor.document.uri === uri) {
+                return editor;
+            }
+        }
+        throw Error("File not found: " + path);
+    }
+}
+
 export async function ReadSource(path: string): Promise<string> {
     if (path === "active") {
         const editor = vscode.window.activeTextEditor;
