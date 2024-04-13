@@ -111,10 +111,12 @@ export async function register(context: vscode.ExtensionContext) {
     });
 
     const GetInputFile = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeItem) => {
-        const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text" });
+        const instance = node.instance as CompilerInstance;
+        const attr = node.attr as keyof CompilerInstance;
+        const value = instance[attr] as string || '';
+
+        const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text", value });
         if (userInput) {
-            const instance = node.instance as CompilerInstance;
-            const attr = node.attr as keyof CompilerInstance;
             (instance[attr] as string) = userInput;
             provider.refresh();
         }
