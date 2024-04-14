@@ -193,6 +193,24 @@
                 "debugCalls": false
               }
             }
+          },
+          "compiler-explorer.compiler.options": {
+            "type": "array",
+            "description": "The default compiler options",
+            "default": [
+              {
+                "pattern": "msvc",
+                "context": "/O2 /std:c++20"
+              },
+              {
+                "pattern": "gcc",
+                "context": "-O3 -std=c++20"
+              },
+              {
+                "pattern": "clang",
+                "context": "-O3 -std=c++20"
+              }
+            ]
           }
         }
       }

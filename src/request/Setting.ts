@@ -15,7 +15,6 @@ export function SetProxy() {
 export type CompilerConfig = {
     "compiler": "x86-64 gcc 13.2",
     "language": "c++",
-    "options": "-O2 -Wall",
     "exec": "",
     "stdin": "",
     "filters": {
@@ -33,7 +32,12 @@ export type CompilerConfig = {
     };
 };
 
+type CompilerOptions = { pattern: RegExp, context: string }[];
+
 export const compilerConfig = vscode.workspace
     .getConfiguration("compiler-explorer")
     .get<CompilerConfig>("compiler.config")!;
 
+export const compilerOptions = vscode.workspace
+    .getConfiguration("compiler-explorer")
+    .get<CompilerOptions>("compiler.options")!;

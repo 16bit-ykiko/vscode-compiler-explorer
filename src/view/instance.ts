@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { logger } from "../request/Logger";
-import { compilerConfig } from "../request/Setting";
+import { compilerConfig, compilerOptions } from "../request/Setting";
 import { CompilerInfo } from "../request/CompilerInfo";
 import { QueryCompilerInfo } from "../request/CompilerInfo";
 
@@ -69,7 +69,15 @@ export class CompilerInstance {
         const result = new CompilerInstance();
         const config = compilerConfig;
         result.compilerInfo = await QueryCompilerInfo(config.compiler);
-        result.options = config.options;
+
+        result.options = "";
+        compilerOptions.forEach(({ pattern, context }) => {
+            const regex = new RegExp(pattern, 'i');
+            if (regex.test(config.compiler)) {
+                result.options = context;
+            }
+        });
+
         result.exec = config.exec;
         result.stdin = config.stdin;
         result.filters = new Filter();
