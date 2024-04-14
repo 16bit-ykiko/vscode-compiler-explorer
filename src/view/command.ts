@@ -110,7 +110,7 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
-    const GetInputFile = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeItem) => {
+    const GetInput = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeItem) => {
         const instance = node.instance as CompilerInstance;
         const attr = node.attr as keyof CompilerInstance;
         const value = instance[attr] as string || '';
@@ -122,11 +122,19 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
+    const ClearInput = vscode.commands.registerCommand('compiler-explorer.ClearInput', async (node: TreeItem) => {
+        const instance = node.instance as CompilerInstance;
+        const attr = node.attr as keyof CompilerInstance;
+        (instance[attr] as string) = '';
+        provider.refresh();
+    });
+
     context.subscriptions.push(Compile_);
     context.subscriptions.push(Clone);
     context.subscriptions.push(Remove);
     context.subscriptions.push(SelectCompiler);
-    context.subscriptions.push(GetInputFile);
+    context.subscriptions.push(GetInput);
+    context.subscriptions.push(ClearInput);
 }
 
 

@@ -17,9 +17,6 @@ export async function Compile(instance: CompilerInstance): Promise<{ compileResu
     const headers = {
         'Content-Type': 'application/json'
     };
-    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-    statusBarItem.text = "$(sync~spin) Loading..."; // 设置文本为加载图标
-    statusBarItem.show();
 
     try {
         const compileResult = await axios.post(url, JSON.stringify(request), { headers: headers });
@@ -29,7 +26,6 @@ export async function Compile(instance: CompilerInstance): Promise<{ compileResu
             const executeResult = await axios.post(url, JSON.stringify(request), { headers: headers });
             return { compileResult: compileResult.data, executeResult: executeResult.data };
         }
-        statusBarItem.hide();
         return { compileResult: compileResult.data };
 
     }

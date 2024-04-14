@@ -95,6 +95,12 @@
         "title": "Get the Input Text",
         "category": "Compiler Explorer",
         "icon": "$(pencil)"
+      },
+      {
+        "command": "compiler-explorer.ClearInput",
+        "title": "Clear the Input Text",
+        "category": "Compiler Explorer",
+        "icon": "$(clear-all)"
       }
     ],
     "menus": {
@@ -151,7 +157,12 @@
         {
           "command": "compiler-explorer.GetInput",
           "when": "view == compiler-explorer.view && viewItem == text",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "compiler-explorer.ClearInput",
+          "when": "view == compiler-explorer.view && viewItem == text",
+          "group": "inline@2"
         }
       ]
     },
