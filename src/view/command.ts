@@ -4,7 +4,7 @@ import { logger } from '../request/Logger';
 import { GetEditor } from '../request/CompileRequest';
 import { CompilerInstance, Filter } from './Instance';
 import { ShowWebview, ClearWebview } from './WebView';
-import { TreeViewProvider, TreeItem } from './TreeView';
+import { TreeViewProvider, TreeNode } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
 import { Compile, GetShortLink, LoadShortLink } from '../request/Request';
 
@@ -74,7 +74,7 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(RemoveAll);
     context.subscriptions.push(Clear);
 
-    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async (node: TreeItem) => {
+    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         try {
             const result = await Compile(instance);
@@ -85,19 +85,19 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
-    const Clone = vscode.commands.registerCommand('compiler-explorer.Clone', async (node: TreeItem) => {
+    const Clone = vscode.commands.registerCommand('compiler-explorer.Clone', async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         provider.instances.push(instance.copy());
         provider.refresh();
     });
 
-    const Remove = vscode.commands.registerCommand('compiler-explorer.Remove', async (node: TreeItem) => {
+    const Remove = vscode.commands.registerCommand('compiler-explorer.Remove', async (node: TreeNode) => {
         const index = provider.instances.indexOf(node.instance as CompilerInstance);
         provider.instances.splice(index, 1);
         provider.refresh();
     });
 
-    const SelectCompiler = vscode.commands.registerCommand('compiler-explorer.SelectCompiler', async (node: TreeItem) => {
+    const SelectCompiler = vscode.commands.registerCommand('compiler-explorer.SelectCompiler', async (node: TreeNode) => {
         const infos = await GetCompilerInfos();
         const options = Array.from(infos.keys()).map(name => ({ label: name }));
 
@@ -112,7 +112,7 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
-    const GetInput = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeItem) => {
+    const GetInput = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         const attr = node.attr as keyof CompilerInstance;
         const value = instance[attr] as string || '';
@@ -124,11 +124,15 @@ export async function register(context: vscode.ExtensionContext) {
         }
     });
 
-    const ClearInput = vscode.commands.registerCommand('compiler-explorer.ClearInput', async (node: TreeItem) => {
+    const ClearInput = vscode.commands.registerCommand('compiler-explorer.ClearInput', async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         const attr = node.attr as keyof CompilerInstance;
         (instance[attr] as string) = '';
         provider.refresh();
+    });
+
+    const CopyText = vscode.commands.registerCommand('compiler-explorer.CopyText', async (node: TreeNode) => {
+        vscode.env.clipboard.writeText(node.label as string);
     });
 
     context.subscriptions.push(Compile_);
@@ -137,6 +141,7 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(SelectCompiler);
     context.subscriptions.push(GetInput);
     context.subscriptions.push(ClearInput);
+    context.subscriptions.push(CopyText);
 }
 
 

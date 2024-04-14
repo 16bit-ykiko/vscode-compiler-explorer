@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import { CompilerInstance, Filter } from './Instance';
 
 
-class TreeNode {
+export class TreeNode {
     attr?: string; // Store the attribute name of the instance
     label?: string; // The label to display in the tree view
     context?: string; // The Tag to identify different nodes
@@ -77,10 +77,8 @@ class TreeNode {
 }
 
 export class TreeItem implements vscode.TreeItem {
-    attr?: string;
     contextValue?: string;
     label?: string | vscode.TreeItemLabel | undefined;
-    instance?: CompilerInstance;
     checkboxState?: vscode.TreeItemCheckboxState;
     collapsibleState?: vscode.TreeItemCollapsibleState;
 
@@ -95,8 +93,6 @@ export class TreeItem implements vscode.TreeItem {
             }
         }
 
-        this.attr = attr;
-        this.instance = instance;
         this.contextValue = context as string;
         this.collapsibleState = children ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
 

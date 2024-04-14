@@ -101,6 +101,12 @@
         "title": "Clear the Input Text",
         "category": "Compiler Explorer",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "compiler-explorer.CopyText",
+        "title": "Copy text",
+        "category": "Compiler Explorer",
+        "icon": "$(clippy)"
       }
     ],
     "menus": {
@@ -163,6 +169,10 @@
           "command": "compiler-explorer.ClearInput",
           "when": "view == compiler-explorer.view && viewItem == text",
           "group": "inline@2"
+        },
+        {
+          "command": "compiler-explorer.CopyText",
+          "when": "view == compiler-explorer.view && (viewItem == select || viewItem == text)"
         }
       ]
     },
