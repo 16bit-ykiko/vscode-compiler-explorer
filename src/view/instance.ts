@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
-import { CompilerInfo } from "../request/CompilerInfo";
+
+import { logger } from "../request/Logger";
 import { compilerConfig } from "../request/Setting";
+import { CompilerInfo } from "../request/CompilerInfo";
 import { QueryCompilerInfo } from "../request/CompilerInfo";
 
 export class Filter {

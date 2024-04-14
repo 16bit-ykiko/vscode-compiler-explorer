@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
-import { ShowWebview, ClearWebview } from './WebView';
+
+import { logger } from '../request/Logger';
+import { GetEditor } from '../request/CompileRequest';
 import { CompilerInstance, Filter } from './Instance';
+import { ShowWebview, ClearWebview } from './WebView';
 import { TreeViewProvider, TreeItem } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
-import { GetShortLink, LoadShortLink } from '../request/Link';
-import { GetEditor } from '../request/CompileRequest';
-import { Compile } from '../request/Compile';
+import { Compile, GetShortLink, LoadShortLink } from '../request/Request';
+
 
 export async function register(context: vscode.ExtensionContext) {
 
@@ -37,7 +39,7 @@ export async function register(context: vscode.ExtensionContext) {
                 ShowWebview({ context, result: results[i], editor: editors[i] });
             }
         } catch (error: unknown) {
-            vscode.window.showErrorMessage((error as Error).message);
+            logger.error(`Compile failed while compile all, error: ${error}`);
         }
     });
 
@@ -79,7 +81,7 @@ export async function register(context: vscode.ExtensionContext) {
             const editor = GetEditor(instance.inputFile);
             ShowWebview({ context, result, editor });
         } catch (error: unknown) {
-            vscode.window.showErrorMessage((error as Error).message);
+            logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);
         }
     });
 

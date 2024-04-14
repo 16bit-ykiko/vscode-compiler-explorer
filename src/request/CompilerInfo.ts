@@ -1,5 +1,8 @@
 import axios from "axios";
 
+import { retry } from "./Request";
+import { logger } from "./Logger";
+
 export class CompilerInfo {
     id: string = "";
     name: string = "";
@@ -14,17 +17,16 @@ export class CompilerInfo {
 const compilerInfos = (async () => {
     const result = new Map<string, CompilerInfo>();
     const fieldNames = Object.keys(new CompilerInfo()).join(',');
-    try {
-        const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
+    const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
+
+    return retry("CompilerInfo", async () => {
+        logger.info(`Start Request for CompilerInfo from ${url}`);
         const response = await axios.get(url);
+        logger.info(`Request for CompilerInfo succeeded.`);
         const infos = response.data as CompilerInfo[];
         infos.forEach(info => { result.set(info.name!, info); });
         return result;
-    }
-    catch (e) {
-        // TODO:
-        throw e;
-    }
+    });
 })();
 
 export async function GetCompilerInfos() {

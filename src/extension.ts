@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
+
+import { logger } from './request/Logger';
 import { register } from './view/Command';
-import { AxiosInit } from './request/Init';
-import { initLogger,log } from './request/Logger';
+import { SetProxy } from './request/Setting';
 
 export function activate(context: vscode.ExtensionContext) {
-	initLogger(context);
-	AxiosInit();
+	SetProxy();
 	register(context);
-	log("Compiler Explorer is now active!");
+	context.subscriptions.push(logger);
 }
 
 export function deactivate() { }

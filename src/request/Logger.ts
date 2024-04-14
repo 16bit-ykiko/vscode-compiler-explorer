@@ -1,14 +1,25 @@
 import * as vscode from 'vscode';
 
-let logger: vscode.OutputChannel | undefined = undefined;
+class Logger {
+    readonly logger: vscode.OutputChannel;
 
-export function initLogger(context: vscode.ExtensionContext) {
-    logger = vscode.window.createOutputChannel("Compiler Explorer");
-    context.subscriptions.push(logger);
-}
+    constructor() {
+        this.logger = vscode.window.createOutputChannel("Compiler Explorer");
+        this.logger.appendLine("Compiler Explorer is now active!");
+    }
 
-export function log(message: string) {
-    if (logger) {
-        logger.appendLine(message);
+    info(message: string) {
+        this.logger.appendLine(message);
+    }
+
+    error(message: string) {
+        this.logger.appendLine(`Error: ${message}`);
+        this.logger.show();
+    }
+
+    dispose() {
+        this.logger.dispose();
     }
 }
+
+export const logger = new Logger();

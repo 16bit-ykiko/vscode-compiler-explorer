@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+
 import { CompilerInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ExecuteParameter {
@@ -72,9 +73,8 @@ export async function ReadSource(path: string): Promise<string> {
         if (editor) {
             return editor.document.getText();
         }
-
         vscode.window.showErrorMessage("No active editor found");
-        return "";
+        throw Error("No active editor found");
     }
 
     const uri = vscode.Uri.file(path);
@@ -85,7 +85,7 @@ export async function ReadSource(path: string): Promise<string> {
                 return doc.getText();
             }
         }
-        vscode.window.showErrorMessage("File not found: " + path);
-        return "";
+        vscode.window.showErrorMessage(`File not found: ${path}`);
+        throw Error(`File not found: ${path}`);
     });
 }
