@@ -1,7 +1,7 @@
 import axios from "axios";
 import { CompilerInfo } from "./CompilerInfo";
 import { CompileRequest } from "./CompileRequest";
-import { CompilerInstance } from "../view/instance";
+import { CompilerInstance } from "../view/Instance";
 import { CompileResult, ExecuteResult } from "./CompileResult";
 
 const compilerInfos = (async () => {

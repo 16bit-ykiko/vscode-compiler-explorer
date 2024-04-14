@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CompilerInstance, Filter, Tool, Library } from "../view/instance";
+import { CompilerInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ExecuteParameter {
     args?: string[];

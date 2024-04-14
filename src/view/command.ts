@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
-import { ShowWebview, ClearWebview } from './webview';
-import { CompilerInstance, Filter } from './instance';
-import { TreeViewProvider, TreeItem } from './treeview';
-import { Compile } from '../request/compile';
+import { ShowWebview, ClearWebview } from './WebView';
+import { CompilerInstance, Filter } from './Instance';
+import { TreeViewProvider, TreeItem } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
-import { GetShortLink, LoadShortLink } from '../request/link';
+import { GetShortLink, LoadShortLink } from '../request/Link';
 import { GetEditor } from '../request/CompileRequest';
+import { Compile } from '../request/Compile';
 
 export async function register(context: vscode.ExtensionContext) {
 

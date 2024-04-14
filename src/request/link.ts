@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ClientState } from "./ClientState";
-import { CompilerInstance } from "../view/instance";
+import { CompilerInstance } from "../view/Instance";
 
 export async function GetShortLink(input: CompilerInstance[]): Promise<string> {
     const request = await ClientState.from(input);

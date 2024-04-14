@@ -3,7 +3,7 @@ import axios from "axios";
 import * as vscode from "vscode";
 import { CompileResult, ExecuteResult } from "./CompileResult";
 import { CompileRequest } from "./CompileRequest";
-import { CompilerInstance } from "../view/instance";
+import { CompilerInstance } from "../view/Instance";
 import { log } from "./Logger";
 
 /**

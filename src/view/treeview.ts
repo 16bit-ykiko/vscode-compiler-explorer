@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CompilerInstance, Filter } from './instance';
+import { CompilerInstance, Filter } from './Instance';
 
 
 class TreeNode {

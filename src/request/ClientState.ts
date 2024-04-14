@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ReadSource } from "./CompileRequest";
-import { CompilerInstance, Filter, Tool, Library } from "../view/instance";
+import { CompilerInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ClientStateCompiler {
     _internalid: any = undefined;
