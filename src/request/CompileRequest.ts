@@ -37,11 +37,12 @@ export class CompileRequest {
     options?: CompileOptions;
     lang: string = "c++";
     allowStoreCodeDebug: boolean = true;
+    bypassCache = 0;
 
     static async from(instance: CompilerInstance) {
         let request = new CompileRequest();
         request.source = await ReadSource(instance.inputFile);
-        request.compiler = instance.compilerId;
+        request.compiler = instance.compilerInfo?.id;
         request.options = CompileOptions.from(instance);
         return request;
     }
@@ -77,7 +78,6 @@ export async function ReadSource(path: string): Promise<string> {
     }
 
     const uri = vscode.Uri.file(path);
-    console.log(uri);
     return await vscode.workspace.openTextDocument(uri).then(doc => doc.getText(), () => {
         const openDocuments = vscode.workspace.textDocuments;
         for (const doc of openDocuments) {

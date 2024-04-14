@@ -58,8 +58,8 @@ export class ClientStateSession {
 
     addCompiler(instance: CompilerInstance) {
         const compiler = new ClientStateCompiler();
-        const { compilerId, options, filters, exec, stdin } = instance;
-        compiler.id = compilerId;
+        const { compilerInfo, options, filters, exec, stdin } = instance;
+        compiler.id = compilerInfo?.id!;
         compiler.options = options;
         compiler.filters = filters;
         this.compilers.push(compiler);
@@ -118,7 +118,7 @@ export class ClientState {
                 console.log(document.uri);
                 for (const compiler of session.compilers) {
                     const instance = new CompilerInstance();
-                    instance.compilerId = compiler.id;
+                    //instance.compilerId = compiler.id;
                     instance.options = compiler.options;
                     instance.filters = new Filter();
                     Object.assign(instance.filters, compiler.filters);

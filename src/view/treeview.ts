@@ -9,38 +9,61 @@ class TreeNode {
     children?: TreeNode[];
     instance?: CompilerInstance;
 
-    static from(instance: CompilerInstance): TreeNode {
+    static async from(instance: CompilerInstance) {
+        const info = instance.compilerInfo!;
+
         let result: TreeNode = {
-            label: instance.compiler,
+            label: info.name,
             context: "instance",
             instance: instance,
             children: [
-                { label: "Compiler", attr: "compiler", context: "select" },
+                { label: `Compiler: ${info.name}`, context: "select" },
                 { label: "Input file", attr: "inputFile", context: "text" },
                 { label: "Output file", attr: "outputFile", context: "text" },
                 { label: "Options", attr: "options", context: "text" },
-                { label: "Exec", attr: "exec", context: "text" },
-                { label: "Stdin", attr: "stdin", context: "text" },
             ]
         };
+
+        if (info.supportsExecute) {
+            result.children?.push({ label: "Exec", attr: "exec", context: "text" },);
+            result.children?.push({ label: "Stdin", attr: "stdin", context: "text" },);
+        }
 
         for (const child of result.children as TreeNode[]) {
             child.instance = instance;
         }
 
-        const filters: TreeNode[] = [
-            { label: "Compile to binary object", attr: "binaryObject" },
-            { label: "Link to binary", attr: "binary" },
-            { label: "Execute the code", attr: "execute" },
-            { label: "Use Intel assembly syntax", attr: "intel" },
-            { label: "Demangle the symbols", attr: "demangle" },
-            { label: "Hide unused labels", attr: "labels" },
-            { label: "Hide library code", attr: "libraryCode" },
-            { label: "Hide directives", attr: "directives" },
-            { label: "Hide comment only lines", attr: "commentOnly" },
-            { label: "Horizontal whitespace", attr: "trim" },
-            { label: "Debug calls", attr: "debugCalls" }
-        ];
+        const filters: TreeNode[] = [];
+        if (info?.supportsBinaryObject) {
+            filters.push({ label: "Compile to binary object", attr: "binaryObject" });
+        }
+
+        if (info?.supportsBinary) {
+            filters.push({ label: "Compile to binary", attr: "binary" });
+        }
+
+        if (info?.supportsExecute) {
+            filters.push({ label: "Execute the code", attr: "execute" });
+        }
+
+        if (info?.supportsIntel) {
+            filters.push({ label: "Use Intel assembly syntax", attr: "intel" });
+        }
+
+        if (info?.supportsDemangle) {
+            filters.push({ label: "Demangle the symbols", attr: "demangle" });
+        }
+
+        filters.push({ label: "Hide unused labels", attr: "labels" });
+
+        if (info?.supportsLibraryCodeFilter) {
+            filters.push({ label: "Hide library code", attr: "libraryCode" });
+        }
+
+        filters.push({ label: "Hide directives", attr: "directives" });
+        filters.push({ label: "Hide comment only lines", attr: "commentOnly" });
+        filters.push({ label: "Horizontal whitespace", attr: "trim" });
+        filters.push({ label: "Debug calls", attr: "debugCalls" });
 
         for (const child of filters) {
             child.context = "checkbox";
@@ -85,20 +108,26 @@ export class TreeItem implements vscode.TreeItem {
 }
 
 export class TreeViewProvider implements vscode.TreeDataProvider<TreeNode> {
-    private _onDidChangeTreeData: vscode.EventEmitter<TreeNode | undefined> = new vscode.EventEmitter<TreeNode | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<TreeNode | undefined> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData = new vscode.EventEmitter<TreeNode | undefined>();
+    readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-    instances = [new CompilerInstance()];
+    instances: CompilerInstance[] = [];
+
+    static async create() {
+        const provider = new TreeViewProvider();
+        provider.instances = [await CompilerInstance.create()];
+        return provider;
+    }
 
     refresh(): void {
         this._onDidChangeTreeData.fire(undefined);
     }
 
-    getTreeItem(element: TreeNode): TreeItem {
+    async getTreeItem(element: TreeNode) {
         return new TreeItem(element);
     }
 
-    getChildren(element?: TreeNode): TreeNode[] {
-        return element ? element.children as TreeNode[] : this.instances.map(TreeNode.from);
+    async getChildren(element?: TreeNode) {
+        return element ? element.children : await Promise.all(this.instances.map(TreeNode.from));
     }
 }

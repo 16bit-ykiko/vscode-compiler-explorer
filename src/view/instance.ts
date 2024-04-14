@@ -1,26 +1,35 @@
+import * as vscode from "vscode";
+import { CompilerInfo } from "../request/CompilerInfo";
+import { compilerConfig } from "../request/Setting";
+import { QueryCompilerInfo } from "../request/CompilerInfo";
+
 export class Filter {
     /** Compile to binary object and show the binary code */
-    binaryObject = false;
+    binaryObject? = false;
     /** Link to binary and show the binary code */
-    binary = false;
+    binary? = false;
     /** Execute the code and show the output */
-    execute = false;
+    execute? = false;
     /** Use Intel assembly syntax */
-    intel = true;
+    intel? = true;
     /** Demangle the symbols */
-    demangle = true;
+    demangle? = true;
     /** Remove unused labels in the assembly */
-    labels = true;
+    labels? = true;
     /** Remove functions from other libraries in the assembly */
-    libraryCode = true;
+    libraryCode? = true;
     /** Remove all assembler directives in the assembly */
-    directives = true;
+    directives? = true;
     /** Remove comment only lines in the assembly */
-    commentOnly = true;
+    commentOnly? = true;
     /** Remove whitespace within each line of assembly code */
-    trim = false;
+    trim? = false;
 
-    debugCalls = false;
+    debugCalls? = false;
+
+    constructor() {
+        Object.assign(this, compilerConfig.filters);
+    }
 
     copy(): Filter {
         const filters = new Filter();
@@ -41,8 +50,7 @@ export class Tool {
  * Represents a compiler instance
  */
 export class CompilerInstance {
-    compiler: string = "x86-64 gcc 13.2";
-    compilerId: string = "g132";
+    compilerInfo?: CompilerInfo;
     /** Input file, default is the active editor */
     inputFile: string = "active";
     /** Output file, default is webview */
@@ -54,6 +62,17 @@ export class CompilerInstance {
     /** Standard input, default is empty */
     stdin: string = "";
     filters: Filter = new Filter();
+
+    static async create() {
+        const result = new CompilerInstance();
+        const config = compilerConfig;
+        result.compilerInfo = await QueryCompilerInfo(config.compiler);
+        result.options = config.options;
+        result.exec = config.exec;
+        result.stdin = config.stdin;
+        result.filters = new Filter();
+        return result;
+    }
 
     copy(): CompilerInstance {
         let result = new CompilerInstance();

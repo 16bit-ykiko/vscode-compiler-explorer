@@ -2,13 +2,14 @@ import * as vscode from 'vscode';
 import { ShowWebview, ClearWebview } from './webview';
 import { CompilerInstance, Filter } from './instance';
 import { TreeViewProvider, TreeItem } from './treeview';
-import { Compile, GetCompilers } from '../request/compile';
+import { Compile } from '../request/compile';
+import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
 import { GetShortLink, LoadShortLink } from '../request/link';
 import { GetEditor } from '../request/CompileRequest';
 
 export async function register(context: vscode.ExtensionContext) {
 
-    let provider = new TreeViewProvider();
+    let provider = await TreeViewProvider.create();
     const treeView = vscode.window.createTreeView('compiler-explorer.view', { treeDataProvider: provider });
 
     treeView.onDidChangeCheckboxState(async (event) => {
@@ -22,7 +23,7 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(treeView);
 
     const AddCompiler = vscode.commands.registerCommand('compiler-explorer.AddCompiler', async () => {
-        provider.instances.push(new CompilerInstance());
+        provider.instances.push(await CompilerInstance.create());
         provider.refresh();
     });
 
@@ -33,7 +34,7 @@ export async function register(context: vscode.ExtensionContext) {
             const results = await Promise.all(instances.map(instances => Compile(instances)));
             const editors = instances.map(instance => GetEditor(instance.inputFile));
             for (const i in instances) {
-                ShowWebview({context, result: results[i], editor: editors[i]});
+                ShowWebview({ context, result: results[i], editor: editors[i] });
             }
         } catch (error: unknown) {
             vscode.window.showErrorMessage((error as Error).message);
@@ -71,12 +72,12 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(RemoveAll);
     context.subscriptions.push(Clear);
 
-    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async () => {
-        const instance = provider.instances[0];
+    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async (node: TreeItem) => {
+        const instance = node.instance as CompilerInstance;
         try {
             const result = await Compile(instance);
             const editor = GetEditor(instance.inputFile);
-            ShowWebview({context, result, editor});
+            ShowWebview({ context, result, editor });
         } catch (error: unknown) {
             vscode.window.showErrorMessage((error as Error).message);
         }
@@ -95,8 +96,8 @@ export async function register(context: vscode.ExtensionContext) {
     });
 
     const SelectCompiler = vscode.commands.registerCommand('compiler-explorer.SelectCompiler', async (node: TreeItem) => {
-        const compilers = await GetCompilers();
-        const options = Array.from(compilers.keys()).map(label => ({ label }));
+        const infos = await GetCompilerInfos();
+        const options = Array.from(infos.keys()).map(name => ({ label: name }));
 
         const selectedOption = await vscode.window.showQuickPick(options, {
             placeHolder: 'Select a compiler',
@@ -104,8 +105,7 @@ export async function register(context: vscode.ExtensionContext) {
 
         if (selectedOption) {
             const instance = node.instance as CompilerInstance;
-            instance.compiler = selectedOption.label;
-            instance.compilerId = compilers.get(selectedOption.label) as string;
+            instance.compilerInfo = await QueryCompilerInfo(selectedOption.label);
             provider.refresh();
         }
     });
