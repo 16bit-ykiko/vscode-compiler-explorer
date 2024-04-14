@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 export function AxiosInit() {
   // Retrieves the proxy configuration from the VS Code settings.
 	const proxyConfig = (() => {
-		const vscodeProxy = vscode.workspace.getConfiguration('http').get('proxy');
+		const vscodeProxy = vscode.workspace.getConfiguration('https').get('proxy');
 		if (typeof vscodeProxy !== 'string') {
 			return undefined;
 		}
