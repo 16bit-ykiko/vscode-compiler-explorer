@@ -2,7 +2,7 @@ import axios from "axios";
 import * as vscode from "vscode";
 
 export function SetProxy() {
-    const vscodeProxy = vscode.workspace.getConfiguration('https').get<string>('proxy');
+    const vscodeProxy = vscode.workspace.getConfiguration('http').get<string>('proxy');
     if (vscodeProxy) {
         axios.defaults.proxy = {
             host: new URL(vscodeProxy).hostname,

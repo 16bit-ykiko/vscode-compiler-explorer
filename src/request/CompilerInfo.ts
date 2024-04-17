@@ -14,12 +14,14 @@ export class CompilerInfo {
     supportsLibraryCodeFilter?: boolean;
 }
 
-const compilerInfos = (async () => {
+let compilerInfos: Map<string, CompilerInfo>;
+
+export async function InitCompilerInfo() {
     const result = new Map<string, CompilerInfo>();
     const fieldNames = Object.keys(new CompilerInfo()).join(',');
     const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
 
-    return retry("CompilerInfo", async () => {
+    compilerInfos = await retry("CompilerInfo", async () => {
         logger.info(`Start Request for CompilerInfo from ${url}`);
         const response = await axios.get(url);
         logger.info(`Request for CompilerInfo succeeded.`);
@@ -27,7 +29,7 @@ const compilerInfos = (async () => {
         infos.forEach(info => { result.set(info.name!, info); });
         return result;
     });
-})();
+}
 
 export async function GetCompilerInfos() {
     return compilerInfos;
