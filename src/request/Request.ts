@@ -20,8 +20,8 @@ export async function retry<T>(messgae: string, fn: () => Promise<T>, maxTries: 
             } else {
                 logger.error(`Request failed for ${messgae}, after ${tries} tries, error: ${error}`);
                 vscode.window.showErrorMessage(`Request failed for ${messgae}, after ${tries} tries, check output channel for more details.`);
+                throw error;
             }
-            throw error;
         }
     }
 }
