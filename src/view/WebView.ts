@@ -61,14 +61,23 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
     const getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: string[]) => {
         return webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
     };
-
+    
     const buildPath = path.join(extensionPath, 'webview-ui', 'build');
     const scriptPath = path.join(buildPath, 'assets', 'index.js');
     const stylePath = path.join(buildPath, 'assets', 'index.css');
 
+    const editorFont = vscode.workspace.getConfiguration().get('editor.fontFamily');
+    const editorFontSize = vscode.workspace.getConfiguration().get('editor.fontSize');
+
     return `<!DOCTYPE html>
     <html lang="en">
         <head>
+            <style>
+                body {
+                    font-family: ${editorFont};
+                    font-size: ${editorFontSize}px;
+                }
+            </style>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" href="${panel.webview.asWebviewUri(vscode.Uri.file(stylePath))}">
