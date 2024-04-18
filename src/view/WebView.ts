@@ -73,17 +73,17 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
 
     let colorStyle = "";
     for (const [key, value] of Object.entries(colorConfig)) {
-        colorStyle += `.compiler-explorer-${key} { color: ${value}; }`;
+        colorStyle += `.compiler-explorer-${key} { 
+            color: ${value}; 
+            font-family: ${editorFont}; 
+            font-size: ${editorFontSize}px; 
+        }\n`;
     }
 
     return `<!DOCTYPE html>
     <html lang="en">
         <head>
             <style>
-                body {
-                    ${typeof editorFont === 'string' ? `font-family: ${editorFont};` : ''}
-                    ${typeof editorFontSize === 'number' ? `font-size: ${editorFontSize}px;` : ''}
-                }
                 ${colorStyle}
             </style>
             <meta charset="UTF-8">
