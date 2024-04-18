@@ -221,6 +221,19 @@
                 "context": "-O3 -std=c++20"
               }
             ]
+          },
+          "compiler-explorer.color.config": {
+            "type": "object",
+            "description": "The default color configuration",
+            "default": {
+              "symbol": "#61AFEF",
+              "string": "#98C379",
+              "number": "#D19A66",
+              "register": "#E5C07B",
+              "instruction": "#C678DD",
+              "comment": "#7F848E",
+              "operator": "#ABB2BF"
+            }
           }
         }
       }

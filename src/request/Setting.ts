@@ -32,6 +32,16 @@ export type CompilerConfig = {
     };
 };
 
+export type ColorConfig = {
+    "symbol": string;
+    "string": string;
+    "number": string;
+    "register": string;
+    "instruction": string;
+    "comment": string;
+    "operator": string;
+};
+
 type CompilerOptions = { pattern: RegExp, context: string }[];
 
 export const compilerConfig = vscode.workspace
@@ -41,3 +51,7 @@ export const compilerConfig = vscode.workspace
 export const compilerOptions = vscode.workspace
     .getConfiguration("compiler-explorer")
     .get<CompilerOptions>("compiler.options")!;
+
+export const colorConfig = vscode.workspace
+    .getConfiguration("compiler-explorer")
+    .get<ColorConfig>("color.config")!;

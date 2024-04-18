@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import path from 'node:path';
 
+import { colorConfig } from '../request/Setting';
 import { throttle } from 'lodash';
 import { CompileResult, ExecuteResult } from "../request/CompileResult";
 
@@ -21,7 +22,7 @@ export async function ShowWebview(params: ShowWebviewParams) {
     );
 
     panel.webview.html = getWebviewHtml(context.extensionPath, panel);
-
+    console.log(result.compileResult?.asm?.map(x => x.text));
     panel.webview.onDidReceiveMessage(message => {
         switch (message.command) {
             case 'ready': {
@@ -61,13 +62,19 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
     const getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: string[]) => {
         return webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
     };
-    
+
     const buildPath = path.join(extensionPath, 'webview-ui', 'build');
     const scriptPath = path.join(buildPath, 'assets', 'index.js');
     const stylePath = path.join(buildPath, 'assets', 'index.css');
 
     const editorFont = vscode.workspace.getConfiguration().get('editor.fontFamily');
     const editorFontSize = vscode.workspace.getConfiguration().get('editor.fontSize');
+
+
+    let colorStyle = "";
+    for (const [key, value] of Object.entries(colorConfig)) {
+        colorStyle += `.compiler-explorer-${key} { color: ${value}; }`;
+    }
 
     return `<!DOCTYPE html>
     <html lang="en">
@@ -77,6 +84,7 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
                     ${typeof editorFont === 'string' ? `font-family: ${editorFont};` : ''}
                     ${typeof editorFontSize === 'number' ? `font-size: ${editorFontSize}px;` : ''}
                 }
+                ${colorStyle}
             </style>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
