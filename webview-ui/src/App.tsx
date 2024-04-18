@@ -51,7 +51,7 @@ function App() {
   };
 
   return (<>
-    <VSCodePanels aria-label='VScode Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'hidden' }}>
+    <VSCodePanels aria-label='VScode Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
       <VSCodePanelTab id='asm'>ASM result</VSCodePanelTab>
       <VSCodePanelTab id='exeout'>Execution Output</VSCodePanelTab>
       <VSCodePanelTab id='stderr'>Compiler Output {stderrCnt && (stderrCnt > 0 && <VSCodeBadge>{stderrCnt}</VSCodeBadge>)}</VSCodePanelTab>
