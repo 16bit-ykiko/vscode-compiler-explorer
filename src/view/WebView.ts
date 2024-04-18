@@ -75,7 +75,7 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
             <style>
                 body {
                     ${typeof editorFont === 'string' ? `font-family: ${editorFont};` : ''}
-                    ${typeof editorFontSize === 'string' ? `font-size: ${editorFontSize}px;` : ''}
+                    ${typeof editorFontSize === 'number' ? `font-size: ${editorFontSize}px;` : ''}
                 }
             </style>
             <meta charset="UTF-8">
