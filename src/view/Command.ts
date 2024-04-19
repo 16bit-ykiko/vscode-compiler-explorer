@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 
 import { logger } from '../request/Logger';
 import { GetEditor } from '../request/CompileRequest';
-import { CompilerInstance, Filter } from './Instance';
+import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 import { ShowWebview, ClearWebview } from './WebView';
 import { TreeViewProvider, TreeNode } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
@@ -16,25 +16,29 @@ export async function register(context: vscode.ExtensionContext) {
 
     treeView.onDidChangeCheckboxState(async (event) => {
         const [[node]] = event.items;
-        const attr = node.attr as keyof Filter;
-        const filters = node.instance?.filters as Filter;
-        (filters[attr] as boolean) = !(filters[attr] as boolean);
+        const { attr, instance } = node;
+        //@ts-ignore
+        instance.filters[attr] = !instance.filters[attr];
         provider.refresh();
     });
 
     context.subscriptions.push(treeView);
 
     const AddCompiler = vscode.commands.registerCommand('compiler-explorer.AddCompiler', async () => {
-        provider.instances.push(await CompilerInstance.create());
+        provider.instances.push(await SingleFileInstance.create());
         provider.refresh();
     });
 
     const CompileAll = vscode.commands.registerCommand('compiler-explorer.CompileAll', async () => {
         const instances = provider.instances;
-
         try {
             const results = await Promise.all(instances.map(instances => Compile(instances)));
-            const editors = instances.map(instance => GetEditor(instance.inputFile));
+            const editors = instances.map(instance => {
+                if (instance instanceof SingleFileInstance) {
+                    return GetEditor(instance.input);
+                }
+                return GetEditor("active");
+            });
             for (const i in instances) {
                 ShowWebview({ context, result: results[i], editor: editors[i] });
             }
@@ -47,6 +51,11 @@ export async function register(context: vscode.ExtensionContext) {
         const instances = provider.instances;
         const link = await GetShortLink(instances);
         vscode.env.clipboard.writeText(link);
+    });
+
+    const AddCMake = vscode.commands.registerCommand('compiler-explorer.AddCMake', async () => {
+        provider.instances.push(await MultiFileInstance.create());
+        provider.refresh();
     });
 
     const LoadLink = vscode.commands.registerCommand('compiler-explorer.LoadLink', async () => {
@@ -70,6 +79,7 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(AddCompiler);
     context.subscriptions.push(CompileAll);
     context.subscriptions.push(GetLink);
+    context.subscriptions.push(AddCMake);
     context.subscriptions.push(LoadLink);
     context.subscriptions.push(RemoveAll);
     context.subscriptions.push(Clear);
@@ -78,8 +88,13 @@ export async function register(context: vscode.ExtensionContext) {
         const instance = node.instance as CompilerInstance;
         try {
             const result = await Compile(instance);
-            const editor = GetEditor(instance.inputFile);
-            ShowWebview({ context, result, editor });
+
+            if (instance instanceof SingleFileInstance) {
+                const editor = GetEditor(instance.input);
+                ShowWebview({ context, result, editor });
+            }
+            
+            console.log(result); // TODO: Show the result of CMake Build
         } catch (error: unknown) {
             logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);
         }
@@ -113,21 +128,19 @@ export async function register(context: vscode.ExtensionContext) {
     });
 
     const GetInput = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeNode) => {
-        const instance = node.instance as CompilerInstance;
-        const attr = node.attr as keyof CompilerInstance;
-        const value = instance[attr] as string || '';
-
-        const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text", value });
+        const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text" });
         if (userInput) {
-            (instance[attr] as string) = userInput;
+            const { attr, instance } = node;
+            //@ts-ignore
+            instance[attr] = userInput;
             provider.refresh();
         }
     });
 
     const ClearInput = vscode.commands.registerCommand('compiler-explorer.ClearInput', async (node: TreeNode) => {
-        const instance = node.instance as CompilerInstance;
-        const attr = node.attr as keyof CompilerInstance;
-        (instance[attr] as string) = '';
+        const { attr, instance } = node;
+        //@ts-ignore
+        instance[attr] = '';
         provider.refresh();
     });
 
@@ -142,6 +155,29 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(GetInput);
     context.subscriptions.push(ClearInput);
     context.subscriptions.push(CopyText);
+
+    const SelectFile = vscode.commands.registerCommand('compiler-explorer.SelectFile', async (node: TreeNode) => {
+        const uri = await vscode.window.showOpenDialog({ canSelectMany: false, canSelectFiles: true, canSelectFolders: false });
+        if (uri) {
+            const { attr, instance } = node;
+            //@ts-ignore
+            instance[attr] = uri[0].fsPath;
+            provider.refresh();
+        }
+    });
+
+    const SelectFolder = vscode.commands.registerCommand('compiler-explorer.SelectFolder', async (node: TreeNode) => {
+        const uri = await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, canSelectMany: false });
+        if (uri) {
+            const { attr, instance } = node;
+            //@ts-ignore
+            instance[attr] = uri[0].fsPath;
+            provider.refresh();
+        }
+    });
+
+    context.subscriptions.push(SelectFile);
+    context.subscriptions.push(SelectFolder);
 }
 
 

@@ -52,18 +52,12 @@ export class Tool {
  * Represents a compiler instance
  */
 export class CompilerInstance {
-    compilerInfo?: CompilerInfo;
-    /** Input file, default is the active editor */
-    inputFile: string = "active";
-    /** Output file, default is webview */
-    outputFile: string = "webview";
-    /** Compile options, default is empty */
-    options: string = "";
-    /** Execute arguments, default is empty */
     exec: string = "";
-    /** Standard input, default is empty */
     stdin: string = "";
+    options: string = "";
+    output: string = "webview";
     filters: Filter = new Filter();
+    compilerInfo: CompilerInfo = new CompilerInfo();
 
     static async create() {
         const result = new CompilerInstance();
@@ -86,6 +80,41 @@ export class CompilerInstance {
 
     copy(): CompilerInstance {
         let result = new CompilerInstance();
+        Object.assign(result, this);
+        result.filters = this.filters.copy();
+        return result;
+    }
+}
+
+export class SingleFileInstance extends CompilerInstance {
+    input: string = "active";
+
+    static async create(): Promise<SingleFileInstance> {
+        const result = new SingleFileInstance();
+        Object.assign(result, await CompilerInstance.create());
+        return result;
+    }
+
+    copy(): SingleFileInstance {
+        const result = new SingleFileInstance();
+        Object.assign(result, this);
+        result.filters = this.filters.copy();
+        return result;
+    }
+}
+
+export class MultiFileInstance extends CompilerInstance {
+    src: string = "workplace";
+    cmakeArgs: string = "";
+
+    static async create(): Promise<MultiFileInstance> {
+        const result = new MultiFileInstance();
+        Object.assign(result, await CompilerInstance.create());
+        return result;
+    }
+
+    copy(): MultiFileInstance {
+        const result = new MultiFileInstance();
         Object.assign(result, this);
         result.filters = this.filters.copy();
         return result;

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { CompilerInstance, Filter } from './Instance';
+import { CompilerInstance, Filter, SingleFileInstance, MultiFileInstance } from './Instance';
 
 
 export class TreeNode {
@@ -15,6 +15,7 @@ export class TreeNode {
     static as_filters(instance: CompilerInstance) {
         const info = instance.compilerInfo!;
         const filters: TreeNode[] = [];
+        
         if (info?.supportsBinaryObject) {
             filters.push({ label: "Compile to binary object", attr: "binaryObject" });
         }
@@ -61,16 +62,23 @@ export class TreeNode {
         let result: TreeNode = {
             label: info.name,
             context: "instance",
-            iconPath: readResourse("icon.png"),
+            iconPath:  readResourse(instance instanceof SingleFileInstance ? "single.png" : "cmake.svg"),
             instance: instance,
-            children: [
-                { label: `Compiler: ${info.name}`, context: "select" },
-                { label: "Input file", attr: "inputFile", context: "text" },
-                { label: "Output file", attr: "outputFile", context: "text" },
-                { label: "Options", attr: "options", context: "text" },
-            ]
+            children: [{ label: `Compiler: ${info.name}`, context: "select" }]
         };
 
+        if (instance instanceof SingleFileInstance) {
+            result.children!.push({ label: "Input file", attr: "input", context: "file" });
+        }
+        else if (instance instanceof MultiFileInstance) {
+            result.children!.push({ label: "CMake arguments", attr: "cmakeArgs", context: "text" });
+            result.children!.push({ label: "Source dictionary", attr: "src", context: "folder" });
+        }
+
+        result.children!.push({ label: "Output file", attr: "output", context: "file" });
+        result.children!.push({ label: "Options", attr: "options", context: "text" });
+
+        // if the compiler supports execute, add the exec and stdin fields
         if (info.supportsExecute) {
             result.children?.push({ label: "Exec", attr: "exec", context: "text" },);
             result.children?.push({ label: "Stdin", attr: "stdin", context: "text" },);
@@ -129,7 +137,7 @@ export class TreeViewProvider implements vscode.TreeDataProvider<TreeNode> {
 
     static async create() {
         const provider = new TreeViewProvider();
-        provider.instances = [await CompilerInstance.create()];
+        provider.instances = [await SingleFileInstance.create()];
         return provider;
     }
 

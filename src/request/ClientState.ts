@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { ReadSource } from "./CompileRequest";
-import { CompilerInstance, Filter, Tool, Library } from "../view/Instance";
+import { CompilerInstance, SingleFileInstance, MultiFileInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ClientStateCompiler {
     _internalid: any = undefined;
@@ -79,7 +79,9 @@ export class ClientStateSession {
     static async from(id: number, instance: CompilerInstance) {
         const session = new ClientStateSession();
         session.id = id;
-        session.source = await ReadSource(instance.inputFile);
+        if (instance instanceof SingleFileInstance) {
+            session.source = await ReadSource(instance.input);
+        }
         session.addCompiler(instance);
         return session;
     }
@@ -92,18 +94,22 @@ export class ClientState {
     static async from(instances: CompilerInstance[]) {
         const clientState = new ClientState();
         let filesCache = new Map<string, number>();
+
         for (const instance of instances) {
-            const index = filesCache.get(instance.inputFile);
-            if (index === undefined) {
-                const id = clientState.sessions.length;
-                filesCache.set(instance.inputFile, id);
-                const session = await ClientStateSession.from(id, instance);
-                clientState.sessions.push(session);
-            }
-            else {
-                clientState.sessions[index].addCompiler(instance);
+            if (instance instanceof SingleFileInstance) {
+                const index = filesCache.get(instance.input);
+                if (index === undefined) {
+                    const id = clientState.sessions.length;
+                    filesCache.set(instance.input, id);
+                    const session = await ClientStateSession.from(id, instance);
+                    clientState.sessions.push(session);
+                }
+                else {
+                    clientState.sessions[index].addCompiler(instance);
+                }
             }
         }
+
         return clientState;
     }
 
@@ -123,7 +129,9 @@ export class ClientState {
                     instance.options = compiler.options;
                     instance.filters = new Filter();
                     Object.assign(instance.filters, compiler.filters);
-                    instance.inputFile = document.uri.fsPath;
+                    if (instance instanceof SingleFileInstance) {
+                        instance.input = document.uri.fsPath;
+                    }
                     instances.push(instance);
                 }
             });

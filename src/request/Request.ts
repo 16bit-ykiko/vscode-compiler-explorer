@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 import { logger } from "./Logger";
 import { ClientState } from "./ClientState";
 import { CompileRequest } from "./CompileRequest";
-import { CompilerInstance } from "../view/Instance";
+import { CompilerInstance, SingleFileInstance, MultiFileInstance } from "../view/Instance";
 import { CompileResult, ExecuteResult } from "./CompileResult";
 
 
@@ -28,7 +28,7 @@ export async function retry<T>(messgae: string, fn: () => Promise<T>, maxTries: 
 
 export async function Compile(instance: CompilerInstance): Promise<{ compileResult: CompileResult, executeResult?: ExecuteResult }> {
     const request = await CompileRequest.from(instance);
-    const url = "https://godbolt.org/api/compiler/" + instance.compilerInfo?.id + "/compile";
+    const url = "https://godbolt.org/api/compiler/" + instance.compilerInfo?.id + (instance instanceof SingleFileInstance ? "/compile" : "/cmake");
     const headers = {
         'Content-Type': 'application/json'
     };
@@ -39,7 +39,11 @@ export async function Compile(instance: CompilerInstance): Promise<{ compileResu
         logger.info(`Request for Compile succeeded.`);
 
         if (instance.compilerInfo?.supportsExecute && request.options?.filters?.execute) {
-            request.options.compilerOptions = { executorRequest: true, skipAsm: true };
+
+            // set for executor only request
+            request.options.compilerOptions.executorRequest = true;
+            request.options.compilerOptions.skipAsm = true;
+
             logger.info(`Start Request for Execute from ${url}`);
             const executeResult = await axios.post(url, JSON.stringify(request), { headers: headers });
             logger.info(`Request for Execute succeeded.`);
