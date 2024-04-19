@@ -1,3 +1,4 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { CompilerInstance, Filter } from './Instance';
@@ -7,33 +8,12 @@ export class TreeNode {
     attr?: string; // Store the attribute name of the instance
     label?: string; // The label to display in the tree view
     context?: string; // The Tag to identify different nodes
+    iconPath?: string | vscode.Uri; // The icon to display in the tree view
     children?: TreeNode[];
     instance?: CompilerInstance;
 
-    static async from(instance: CompilerInstance) {
+    static as_filters(instance: CompilerInstance) {
         const info = instance.compilerInfo!;
-
-        let result: TreeNode = {
-            label: info.name,
-            context: "instance",
-            instance: instance,
-            children: [
-                { label: `Compiler: ${info.name}`, context: "select" },
-                { label: "Input file", attr: "inputFile", context: "text" },
-                { label: "Output file", attr: "outputFile", context: "text" },
-                { label: "Options", attr: "options", context: "text" },
-            ]
-        };
-
-        if (info.supportsExecute) {
-            result.children?.push({ label: "Exec", attr: "exec", context: "text" },);
-            result.children?.push({ label: "Stdin", attr: "stdin", context: "text" },);
-        }
-
-        for (const child of result.children as TreeNode[]) {
-            child.instance = instance;
-        }
-
         const filters: TreeNode[] = [];
         if (info?.supportsBinaryObject) {
             filters.push({ label: "Compile to binary object", attr: "binaryObject" });
@@ -71,7 +51,42 @@ export class TreeNode {
             child.instance = instance;
         }
 
-        result.children?.push({ label: "Filter", context: "filter", children: filters });
+        return filters;
+    }
+
+    static async from(instance: CompilerInstance) {
+        const info = instance.compilerInfo!;
+        const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
+
+        let result: TreeNode = {
+            label: info.name,
+            context: "instance",
+            iconPath: readResourse("icon.png"),
+            instance: instance,
+            children: [
+                { label: `Compiler: ${info.name}`, context: "select" },
+                { label: "Input file", attr: "inputFile", context: "text" },
+                { label: "Output file", attr: "outputFile", context: "text" },
+                { label: "Options", attr: "options", context: "text" },
+            ]
+        };
+
+        if (info.supportsExecute) {
+            result.children?.push({ label: "Exec", attr: "exec", context: "text" },);
+            result.children?.push({ label: "Stdin", attr: "stdin", context: "text" },);
+        }
+
+        for (const child of result.children as TreeNode[]) {
+            child.instance = instance;
+        }
+
+        result.children?.push({
+            label: "Filters",
+            context: "filters",
+            iconPath: readResourse("filters.svg"),
+            children: TreeNode.as_filters(instance),
+            instance: instance
+        });
         return result;
     }
 }
@@ -81,26 +96,28 @@ export class TreeItem implements vscode.TreeItem {
     label?: string | vscode.TreeItemLabel | undefined;
     checkboxState?: vscode.TreeItemCheckboxState;
     collapsibleState?: vscode.TreeItemCollapsibleState;
+    iconPath?: string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri };
 
     constructor(node: TreeNode) {
-        const { label, context, children, attr, instance } = node;
-        this.label = label as string;
+        const { attr, label, context, iconPath, children, instance } = node;
 
+        this.label = label as string;
         if (instance && attr) {
-            const value = instance[attr as keyof CompilerInstance];
+            //@ts-ignore
+            const value = instance[attr];
             if (typeof value === "string") {
                 this.label = `${label}: "${value}"`;
             }
         }
 
-        this.contextValue = context as string;
+        this.iconPath = iconPath;
+        this.contextValue = context;
         this.collapsibleState = children ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
 
         if (node.context === "checkbox") {
             const value = instance?.filters[node.attr as keyof Filter] as boolean;
             this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
         }
-
     }
 }
 

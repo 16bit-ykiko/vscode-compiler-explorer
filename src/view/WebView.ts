@@ -22,7 +22,6 @@ export async function ShowWebview(params: ShowWebviewParams) {
     );
 
     panel.webview.html = getWebviewHtml(context.extensionPath, panel);
-    console.log(result.compileResult?.asm?.map(x => x.text));
     panel.webview.onDidReceiveMessage(message => {
         switch (message.command) {
             case 'ready': {
