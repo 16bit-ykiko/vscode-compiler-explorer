@@ -15,7 +15,7 @@ export class TreeNode {
     static as_filters(instance: CompilerInstance) {
         const info = instance.compilerInfo!;
         const filters: TreeNode[] = [];
-        
+
         if (info?.supportsBinaryObject) {
             filters.push({ label: "Compile to binary object", attr: "binaryObject" });
         }
@@ -71,11 +71,11 @@ export class TreeNode {
             result.children!.push({ label: "Input file", attr: "input", context: "file" });
         }
         else if (instance instanceof MultiFileInstance) {
-            result.children!.push({ label: "CMake arguments", attr: "cmakeArgs", context: "text" });
-            result.children!.push({ label: "Source dictionary", attr: "src", context: "folder" });
+            result.children!.push({ label: "CMake Arguments", attr: "cmakeArgs", context: "text" });
+            result.children!.push({ label: "Source", attr: "src", context: "folder" });
         }
 
-        result.children!.push({ label: "Output file", attr: "output", context: "file" });
+        result.children!.push({ label: "Output", attr: "output", context: "file" });
         result.children!.push({ label: "Options", attr: "options", context: "text" });
 
         // if the compiler supports execute, add the exec and stdin fields

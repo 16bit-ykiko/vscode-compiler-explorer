@@ -67,13 +67,18 @@ export class CompileRequest {
             if (fs.existsSync(cmake)) {
                 request.source = await ReadSource(cmake);
                 request.files = [];
-                const files = fs.readdirSync(instance.src);
-                for (const file of files) {
-                    if (file !== "CMakeLists.txt") {
-                        request.files.push({ filename: file, contents: fs.readFileSync(path.join(instance.src, file), 'utf8') });
+
+                for (const name of fs.readdirSync(instance.src, { recursive: true })) {
+                    const filename = name as string;
+                    const fullname = path.join(instance.src, filename);
+                    const stats = fs.statSync(fullname);
+                    if (stats.isFile()) {
+                        // TODO: Filters files according to the setting.json
+                        if (filename !== "CMakeLists.txt") {
+                            request.files.push({ filename: filename, contents: fs.readFileSync(fullname, 'utf8') });
+                        }
                     }
-                    // TODO: recursive search for files in subdirectories
-                }
+                };
             }
             else {
                 vscode.window.showErrorMessage(`CMakeLists.txt not found in ${instance.src}`);
@@ -83,6 +88,7 @@ export class CompileRequest {
 
         request.compiler = instance.compilerInfo?.id;
         request.options = CompileOptions.from(instance);
+        console.log(request);
         return request;
     }
 }

@@ -18,7 +18,7 @@ export async function ShowWebview(params: ShowWebviewParams) {
         'compiler-explorer-webview',
         'Compiler Explorer',
         vscode.ViewColumn.Beside,
-        { enableScripts: true }
+        { enableScripts: true, enableFindWidget: true }
     );
 
     panel.webview.html = getWebviewHtml(context.extensionPath, panel);
