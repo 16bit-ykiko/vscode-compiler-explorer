@@ -88,7 +88,7 @@ export class CompileRequest {
 
         request.compiler = instance.compilerInfo?.id;
         request.options = CompileOptions.from(instance);
-        console.log(request);
+
         return request;
     }
 }
