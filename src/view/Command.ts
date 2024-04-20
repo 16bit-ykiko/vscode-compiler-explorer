@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { logger } from '../request/Logger';
-import { GetEditor } from '../request/CompileRequest';
+import { GetEditor } from '../request/Utility';
 import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 import { ShowWebview, ClearWebview } from './WebView';
 import { TreeViewProvider, TreeNode } from './TreeView';
@@ -93,7 +93,7 @@ export async function register(context: vscode.ExtensionContext) {
                 const editor = GetEditor(instance.input);
                 ShowWebview({ context, result, editor });
             }
-            
+
             console.log(result); // TODO: Show the result of CMake Build
         } catch (error: unknown) {
             logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);

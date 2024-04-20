@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { ReadSource } from './Utility';
 import { CompilerInstance, SingleFileInstance, MultiFileInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ExecuteParameter {
@@ -86,43 +87,3 @@ export class CompileRequest {
     }
 }
 
-export function GetEditor(path: string): vscode.TextEditor {
-    if (path === 'active') {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            return editor;
-        }
-        throw Error("No active editor found");
-    } else {
-        const uri = vscode.Uri.file(path);
-        for (const editor of vscode.window.visibleTextEditors) {
-            if (editor.document.uri.path === uri.path) {
-                return editor;
-            }
-        }
-        throw Error("File not found: " + path);
-    }
-}
-
-export async function ReadSource(path: string): Promise<string> {
-    if (path === "active") {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            return editor.document.getText();
-        }
-        vscode.window.showErrorMessage("No active editor found");
-        throw Error("No active editor found");
-    }
-
-    const uri = vscode.Uri.file(path);
-    return await vscode.workspace.openTextDocument(uri).then(doc => doc.getText(), () => {
-        const openDocuments = vscode.workspace.textDocuments;
-        for (const doc of openDocuments) {
-            if (doc.fileName === path) {
-                return doc.getText();
-            }
-        }
-        vscode.window.showErrorMessage(`File not found: ${path}`);
-        throw Error(`File not found: ${path}`);
-    });
-}

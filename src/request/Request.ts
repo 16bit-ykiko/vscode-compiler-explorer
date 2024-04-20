@@ -2,29 +2,11 @@ import axios from "axios";
 import * as vscode from "vscode";
 
 import { logger } from "./Logger";
+import { retry } from "./Utility";
 import { ClientState } from "./ClientState";
 import { CompileRequest } from "./CompileRequest";
 import { CompilerInstance, SingleFileInstance, MultiFileInstance } from "../view/Instance";
 import { CompileResult, ExecuteResult } from "./CompileResult";
-
-
-export async function retry<T>(messgae: string, fn: () => Promise<T>, maxTries: number = 5): Promise<T> {
-    let tries = 0;
-    while (true) {
-        try {
-            return await fn();
-        } catch (error) {
-            if (tries !== maxTries) {
-                logger.info(`Request failed, retrying for the ${tries + 1} time.`);
-                tries += 1;
-            } else {
-                logger.error(`Request failed for ${messgae}, after ${tries} tries, error: ${error}`);
-                vscode.window.showErrorMessage(`Request failed for ${messgae}, after ${tries} tries, check output channel for more details.`);
-                throw error;
-            }
-        }
-    }
-}
 
 export async function Compile(instance: CompilerInstance): Promise<{ compileResult: CompileResult, executeResult?: ExecuteResult }> {
     const request = await CompileRequest.from(instance);

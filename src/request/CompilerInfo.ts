@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { retry } from "./Request";
+import { retry } from "./Utility";
 import { logger } from "./Logger";
 
 export class CompilerInfo {
