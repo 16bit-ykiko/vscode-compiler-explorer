@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { logger } from "../request/Logger";
-import { compilerConfig, compilerOptions } from "../request/Setting";
+import { compilerConfig, compilerOptions } from "../request/Config";
 import { CompilerInfo } from "../request/CompilerInfo";
 import { QueryCompilerInfo } from "../request/CompilerInfo";
 

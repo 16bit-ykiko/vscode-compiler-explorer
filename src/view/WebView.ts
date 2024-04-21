@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import path from 'node:path';
 
-import { colorConfig } from '../request/Setting';
+import { colorConfig, singleIcon } from '../request/Config';
 import { throttle } from 'lodash';
 import { CompileResult, ExecuteResult } from "../request/CompileResult";
 
@@ -20,7 +20,8 @@ export async function ShowWebview(params: ShowWebviewParams) {
         vscode.ViewColumn.Beside,
         { enableScripts: true, enableFindWidget: true }
     );
-
+    
+    panel.iconPath = singleIcon;
     panel.webview.html = getWebviewHtml(context.extensionPath, panel);
     panel.webview.onDidReceiveMessage(message => {
         switch (message.command) {

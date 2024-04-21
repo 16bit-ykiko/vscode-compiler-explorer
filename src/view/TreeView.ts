@@ -1,7 +1,7 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { CompilerInstance, Filter, SingleFileInstance, MultiFileInstance } from './Instance';
+import { singleIcon, cmakeIcon, filtersIcon } from '../request/Config';
+import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 
 export class TreeNode {
     attr?: string; // Store the attribute name of the instance
@@ -56,12 +56,11 @@ export class TreeNode {
 
     static async from(instance: CompilerInstance) {
         const info = instance.compilerInfo;
-        const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
 
         let result = {
             label: info.name,
             context: "instance",
-            iconPath: readResourse(instance instanceof SingleFileInstance ? "single.png" : "cmake.svg"),
+            iconPath: (instance instanceof SingleFileInstance ? singleIcon : cmakeIcon),
             instance: instance,
             children: [{ label: `Compiler: ${info.name}`, context: "select" } as TreeNode]
         };
@@ -90,7 +89,7 @@ export class TreeNode {
         result.children.push({
             label: "Filters",
             context: "filters",
-            iconPath: readResourse("filters.svg"),
+            iconPath: filtersIcon,
             children: TreeNode.as_filters(instance),
             instance: instance
         });

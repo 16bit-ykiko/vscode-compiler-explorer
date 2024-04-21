@@ -1,4 +1,4 @@
-import axios from "axios";
+import * as path from "path";
 import * as vscode from "vscode";
 
 export type CompilerConfig = {
@@ -44,3 +44,10 @@ export const compilerOptions = vscode.workspace
 export const colorConfig = vscode.workspace
     .getConfiguration("compiler-explorer")
     .get<ColorConfig>("color.config")!;
+
+const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
+
+export const Icon = vscode.Uri.file(readResourse("icon.svg"));
+export const cmakeIcon = vscode.Uri.file(readResourse("cmake.svg"));
+export const singleIcon = vscode.Uri.file(readResourse("single.png"));
+export const filtersIcon = vscode.Uri.file(readResourse("filters.svg"));
