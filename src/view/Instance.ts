@@ -33,7 +33,7 @@ export class Filter {
         Object.assign(this, compilerConfig.filters);
     }
 
-    copy(): Filter {
+    copy() {
         const filters = new Filter();
         Object.assign(filters, this);
         return filters;
@@ -48,9 +48,6 @@ export class Tool {
     // TODO: add tool support
 };
 
-/**
- * Represents a compiler instance
- */
 export class CompilerInstance {
     exec: string = "";
     stdin: string = "";
@@ -78,7 +75,7 @@ export class CompilerInstance {
         return result;
     }
 
-    copy(): CompilerInstance {
+    copy() {
         let result = new CompilerInstance();
         Object.assign(result, this);
         result.filters = this.filters.copy();
@@ -89,13 +86,13 @@ export class CompilerInstance {
 export class SingleFileInstance extends CompilerInstance {
     input: string = "active";
 
-    static async create(): Promise<SingleFileInstance> {
+    static async create() {
         const result = new SingleFileInstance();
         Object.assign(result, await CompilerInstance.create());
         return result;
     }
 
-    copy(): SingleFileInstance {
+    copy() {
         const result = new SingleFileInstance();
         Object.assign(result, this);
         result.filters = this.filters.copy();
@@ -107,13 +104,13 @@ export class MultiFileInstance extends CompilerInstance {
     src: string = "workplace";
     cmakeArgs: string = "";
 
-    static async create(): Promise<MultiFileInstance> {
+    static async create() {
         const result = new MultiFileInstance();
         Object.assign(result, await CompilerInstance.create());
         return result;
     }
 
-    copy(): MultiFileInstance {
+    copy() {
         const result = new MultiFileInstance();
         Object.assign(result, this);
         result.filters = this.filters.copy();

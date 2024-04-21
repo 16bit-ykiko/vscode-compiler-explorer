@@ -1,8 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as vscode from 'vscode';
-
-import { ReadSource } from './Utility';
+import { ReadSource, ReadCMakeSource } from './Utility';
 import { CompilerInstance, SingleFileInstance, MultiFileInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ExecuteParameter {
@@ -25,15 +21,15 @@ export class CompileOptions {
     executeParameters?: ExecuteParameter;
     compilerOptions: CompilerOption = new CompilerOption();
 
-    static from(instance: CompilerInstance): CompileOptions {
+    static from(instance: CompilerInstance) {
         let options = new CompileOptions();
 
-        options.userArguments = instance.options;
         options.filters = instance.filters;
+        options.userArguments = instance.options;
 
         if (instance.compilerInfo?.supportsExecute) {
             options.executeParameters = {
-                args: instance.exec === "" ? undefined : instance.exec.split(" "),
+                args: instance.exec === "" ? [] : instance.exec.split(" "),
                 stdin: instance.stdin
             };
         }
@@ -63,30 +59,12 @@ export class CompileRequest {
         if (instance instanceof SingleFileInstance) {
             request.source = await ReadSource(instance.input);
         } else if (instance instanceof MultiFileInstance) {
-            const cmake = path.join(instance.src, "CMakeLists.txt");
-            if (fs.existsSync(cmake)) {
-                request.source = await ReadSource(cmake);
-                request.files = [];
-
-                for (const name of fs.readdirSync(instance.src, { recursive: true })) {
-                    const filename = name as string;
-                    const fullname = path.join(instance.src, filename);
-                    const stats = fs.statSync(fullname);
-                    if (stats.isFile()) {
-                        // TODO: Filters files according to the setting.json
-                        if (filename !== "CMakeLists.txt") {
-                            request.files.push({ filename: filename, contents: fs.readFileSync(fullname, 'utf8') });
-                        }
-                    }
-                };
-            }
-            else {
-                vscode.window.showErrorMessage(`CMakeLists.txt not found in ${instance.src}`);
-                throw Error(`CMakeLists.txt not found in ${instance.src}`);
-            }
+            const { cmakeSource, files } = await ReadCMakeSource(instance.src);
+            request.source = cmakeSource;
+            request.files = files;
         }
 
-        request.compiler = instance.compilerInfo?.id;
+        request.compiler = instance.compilerInfo.id;
         request.options = CompileOptions.from(instance);
 
         return request;

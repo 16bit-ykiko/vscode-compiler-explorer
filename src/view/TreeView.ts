@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 
 import { CompilerInstance, Filter, SingleFileInstance, MultiFileInstance } from './Instance';
 
-
 export class TreeNode {
     attr?: string; // Store the attribute name of the instance
     label?: string; // The label to display in the tree view
@@ -56,45 +55,46 @@ export class TreeNode {
     }
 
     static async from(instance: CompilerInstance) {
-        const info = instance.compilerInfo!;
+        const info = instance.compilerInfo;
         const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
 
-        let result: TreeNode = {
+        let result = {
             label: info.name,
             context: "instance",
-            iconPath:  readResourse(instance instanceof SingleFileInstance ? "single.png" : "cmake.svg"),
+            iconPath: readResourse(instance instanceof SingleFileInstance ? "single.png" : "cmake.svg"),
             instance: instance,
-            children: [{ label: `Compiler: ${info.name}`, context: "select" }]
+            children: [{ label: `Compiler: ${info.name}`, context: "select" } as TreeNode]
         };
 
         if (instance instanceof SingleFileInstance) {
-            result.children!.push({ label: "Input file", attr: "input", context: "file" });
+            result.children.push({ label: "Input file", attr: "input", context: "file" });
         }
         else if (instance instanceof MultiFileInstance) {
-            result.children!.push({ label: "CMake Arguments", attr: "cmakeArgs", context: "text" });
-            result.children!.push({ label: "Source", attr: "src", context: "folder" });
+            result.children.push({ label: "CMake Arguments", attr: "cmakeArgs", context: "text" });
+            result.children.push({ label: "Source", attr: "src", context: "folder" });
         }
 
-        result.children!.push({ label: "Output", attr: "output", context: "file" });
-        result.children!.push({ label: "Options", attr: "options", context: "text" });
+        result.children.push({ label: "Output", attr: "output", context: "file" });
+        result.children.push({ label: "Options", attr: "options", context: "text" });
 
         // if the compiler supports execute, add the exec and stdin fields
         if (info.supportsExecute) {
-            result.children?.push({ label: "Exec", attr: "exec", context: "text" },);
-            result.children?.push({ label: "Stdin", attr: "stdin", context: "text" },);
+            result.children.push({ label: "Exec", attr: "exec", context: "text" },);
+            result.children.push({ label: "Stdin", attr: "stdin", context: "text" },);
         }
 
         for (const child of result.children as TreeNode[]) {
             child.instance = instance;
         }
 
-        result.children?.push({
+        result.children.push({
             label: "Filters",
             context: "filters",
             iconPath: readResourse("filters.svg"),
             children: TreeNode.as_filters(instance),
             instance: instance
         });
+
         return result;
     }
 }
@@ -120,10 +120,14 @@ export class TreeItem implements vscode.TreeItem {
 
         this.iconPath = iconPath;
         this.contextValue = context;
-        this.collapsibleState = children ? vscode.TreeItemCollapsibleState.Expanded : vscode.TreeItemCollapsibleState.None;
 
-        if (node.context === "checkbox") {
-            const value = instance?.filters[node.attr as keyof Filter] as boolean;
+        if (context === "instance" || context === "filters") {
+            this.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+        }
+
+        if (context === "checkbox") {
+            //@ts-ignore
+            const value = instance.filters[attr] as boolean;
             this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
         }
     }
@@ -137,7 +141,7 @@ export class TreeViewProvider implements vscode.TreeDataProvider<TreeNode> {
 
     static async create() {
         const provider = new TreeViewProvider();
-        provider.instances = [await SingleFileInstance.create()];
+        provider.instances = [await MultiFileInstance.create()];
         return provider;
     }
 

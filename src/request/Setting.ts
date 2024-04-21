@@ -1,17 +1,6 @@
 import axios from "axios";
 import * as vscode from "vscode";
 
-export function SetProxy() {
-    const vscodeProxy = vscode.workspace.getConfiguration('http').get<string>('proxy');
-    if (vscodeProxy) {
-        axios.defaults.proxy = {
-            host: new URL(vscodeProxy).hostname,
-            port: parseInt(new URL(vscodeProxy).port),
-            protocol: new URL(vscodeProxy).protocol,
-        };
-    }
-}
-
 export type CompilerConfig = {
     "compiler": "x86-64 gcc 13.2",
     "language": "c++",

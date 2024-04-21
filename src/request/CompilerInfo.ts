@@ -14,27 +14,36 @@ export class CompilerInfo {
     supportsLibraryCodeFilter?: boolean;
 }
 
-let compilerInfos: Map<string, CompilerInfo>;
-
-export async function InitCompilerInfo() {
-    const result = new Map<string, CompilerInfo>();
-    const fieldNames = Object.keys(new CompilerInfo()).join(',');
-    const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
-
-    compilerInfos = await retry("CompilerInfo", async () => {
-        logger.info(`Start Request for CompilerInfo from ${url}`);
-        const response = await axios.get(url);
-        logger.info(`Request for CompilerInfo succeeded.`);
-        const infos = response.data as CompilerInfo[];
-        infos.forEach(info => { result.set(info.name!, info); });
-        return result;
-    });
-}
+const compilerInfos = new Map<string, CompilerInfo>();
+const idToName = new Map<string, string>();
 
 export async function GetCompilerInfos() {
+    if (compilerInfos.size === 0) {
+        const fieldNames = Object.keys(new CompilerInfo()).join(',');
+        const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
+
+        await retry("CompilerInfo", async () => {
+            logger.info(`Start Request for CompilerInfo from ${url}`);
+            const response = await axios.get(url);
+            logger.info(`Request for CompilerInfo succeeded.`);
+            const infos = response.data as CompilerInfo[];
+            infos.forEach(info => {
+                compilerInfos.set(info.name, info);
+                idToName.set(info.id, info.name);
+            });
+        });
+    }
     return compilerInfos;
 }
 
 export async function QueryCompilerInfo(name: string) {
-    return (await compilerInfos).get(name)!;
+    const infos = await GetCompilerInfos();
+    if (infos.has(name)) {
+        return infos.get(name)!;
+    } else if (idToName.has(name)) {
+        return infos.get(idToName.get(name)!)!;
+    }
+    else {
+        throw Error("Unexcepted internal error: CompilerInfo not found, Please report this issue.");
+    }
 }

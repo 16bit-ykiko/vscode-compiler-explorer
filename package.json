@@ -37,7 +37,7 @@
         "icon": "$(run-all)"
       },
       {
-        "command": "compiler-explorer.AddCompiler",
+        "command": "compiler-explorer.AddSingleInstance",
         "title": "Add a New Compiler Instance",
         "category": "Compiler Explorer",
         "icon": "$(add)"
@@ -49,7 +49,7 @@
         "icon": "$(trashcan)"
       },
       {
-        "command": "compiler-explorer.AddCMake",
+        "command": "compiler-explorer.AddMultiInstance",
         "title": "Add a New CMake Instance",
         "category": "Compiler Explorer",
         "icon": "$(add)"
@@ -135,7 +135,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "compiler-explorer.AddCompiler",
+          "command": "compiler-explorer.AddSingleInstance",
           "when": "view == compiler-explorer.view",
           "group": "navigation@2"
         },
@@ -145,7 +145,7 @@
           "group": "navigation@3"
         },
         {
-          "command": "compiler-explorer.AddCMake",
+          "command": "compiler-explorer.AddMultiInstance",
           "when": "view == compiler-explorer.view"
         },
         {

@@ -110,12 +110,29 @@ export type BuildResult = CompileResult & {
     code: number;
 };
 
+export type BasicExecutionResult = {
+    code: number;
+    okToCache: boolean;
+    stdout: ResultLine[];
+    stderr: ResultLine[];
+    execTime: string;
+    processExecutionResultTime?: number;
+    timedOut: boolean;
+    languageId?: string;
+    truncated?: boolean;
+};
+
+export type BuildStep = BasicExecutionResult & {
+    compilationOptions: string[];
+    step: string;
+};
+
 export type CompileResult = {
     code: number;
     timedOut: boolean;
     okToCache?: boolean;
     buildResult?: BuildResult;
-    // TODO: buildsteps?: BuildStep[];
+    buildsteps?: BuildStep[];
     inputFilename?: string;
     asm?: ResultLine[];
     devices?: Record<string, CompileResult>;

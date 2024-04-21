@@ -24,8 +24,13 @@ export async function register(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(treeView);
 
-    const AddCompiler = vscode.commands.registerCommand('compiler-explorer.AddCompiler', async () => {
+    const AddSingleInstance = vscode.commands.registerCommand('compiler-explorer.AddSingleInstance', async () => {
         provider.instances.push(await SingleFileInstance.create());
+        provider.refresh();
+    });
+
+    const AddMultiInstance = vscode.commands.registerCommand('compiler-explorer.AddMultiInstance', async () => {
+        provider.instances.push(await MultiFileInstance.create());
         provider.refresh();
     });
 
@@ -44,6 +49,7 @@ export async function register(context: vscode.ExtensionContext) {
             }
         } catch (error: unknown) {
             logger.error(`Compile failed while compile all, error: ${error}`);
+            console.trace(error);
         }
     });
 
@@ -53,17 +59,18 @@ export async function register(context: vscode.ExtensionContext) {
         vscode.env.clipboard.writeText(link);
     });
 
-    const AddCMake = vscode.commands.registerCommand('compiler-explorer.AddCMake', async () => {
-        provider.instances.push(await MultiFileInstance.create());
-        provider.refresh();
-    });
-
     const LoadLink = vscode.commands.registerCommand('compiler-explorer.LoadLink', async () => {
         const link = await vscode.window.showInputBox({ placeHolder: "Enter link" });
         if (link) {
-            const instances = await LoadShortLink(link);
-            provider.instances = instances;
-            provider.refresh();
+            try {
+                const instances = await LoadShortLink(link);
+                provider.instances = instances;
+                provider.refresh();
+            }
+            catch (error: unknown) {
+                logger.error(`Load link failed while load link, error: ${error}`);
+                console.trace(error);
+            }
         }
     });
 
@@ -76,10 +83,10 @@ export async function register(context: vscode.ExtensionContext) {
         ClearWebview();
     });
 
-    context.subscriptions.push(AddCompiler);
+    context.subscriptions.push(AddSingleInstance);
     context.subscriptions.push(CompileAll);
     context.subscriptions.push(GetLink);
-    context.subscriptions.push(AddCMake);
+    context.subscriptions.push(AddMultiInstance);
     context.subscriptions.push(LoadLink);
     context.subscriptions.push(RemoveAll);
     context.subscriptions.push(Clear);
