@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 
-import { singleIcon, cmakeIcon, filtersIcon } from '../request/Config';
+import { LoadShortLink } from '../request/Request';
+import { singleIcon, cmakeIcon, filtersIcon, Config } from '../request/Config';
 import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 
 export class TreeNode {
@@ -106,7 +107,7 @@ export class TreeItem implements vscode.TreeItem {
     iconPath?: string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri };
 
     constructor(node: TreeNode) {
-        const { attr, label, context, iconPath, children, instance } = node;
+        const { attr, label, context, iconPath, instance } = node;
 
         this.label = label as string;
         if (instance && attr) {
@@ -140,7 +141,13 @@ export class TreeViewProvider implements vscode.TreeDataProvider<TreeNode> {
 
     static async create() {
         const provider = new TreeViewProvider();
-        provider.instances = [await MultiFileInstance.create()];
+        const url = Config.defaultURL();
+        if (url !== "") {
+            provider.instances = await LoadShortLink(Config.defaultURL());
+        }
+        else {
+            provider.instances.push(await SingleFileInstance.create());
+        }
         return provider;
     }
 

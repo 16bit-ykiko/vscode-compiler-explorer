@@ -4,8 +4,8 @@ import { logger } from "./Logger";
 import { retry } from "./Utility";
 import { ClientState } from "./ClientState";
 import { CompileRequest } from "./CompileRequest";
-import { CompilerInstance, SingleFileInstance } from "../view/Instance";
 import { CompileResult, ExecuteResult } from "./CompileResult";
+import { CompilerInstance, SingleFileInstance } from "../view/Instance";
 
 export async function Compile(instance: CompilerInstance): Promise<{ compileResult: CompileResult, executeResult?: ExecuteResult }> {
     const request = await CompileRequest.from(instance);

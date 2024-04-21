@@ -1,7 +1,4 @@
-import * as vscode from "vscode";
-
-import { logger } from "../request/Logger";
-import { compilerConfig, compilerOptions } from "../request/Config";
+import { Config } from "../request/Config";
 import { CompilerInfo } from "../request/CompilerInfo";
 import { QueryCompilerInfo } from "../request/CompilerInfo";
 
@@ -30,7 +27,7 @@ export class Filter {
     debugCalls? = false;
 
     constructor() {
-        Object.assign(this, compilerConfig.filters);
+        Object.assign(this, Config.defaultOptions().filters);
     }
 
     copy() {
@@ -58,17 +55,10 @@ export class CompilerInstance {
 
     static async create() {
         const result = new CompilerInstance();
-        const config = compilerConfig;
+        const config = Config.defaultOptions();
         result.compilerInfo = await QueryCompilerInfo(config.compiler);
 
-        result.options = "";
-        compilerOptions.forEach(({ pattern, context }) => {
-            const regex = new RegExp(pattern, 'i');
-            if (regex.test(config.compiler)) {
-                result.options = context;
-            }
-        });
-
+        result.options = config.options;
         result.exec = config.exec;
         result.stdin = config.stdin;
         result.filters = new Filter();

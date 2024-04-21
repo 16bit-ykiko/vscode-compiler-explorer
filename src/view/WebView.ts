@@ -1,8 +1,8 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
-import path from 'node:path';
 
-import { colorConfig, singleIcon } from '../request/Config';
 import { throttle } from 'lodash';
+import { singleIcon, Config } from '../request/Config';
 import { CompileResult, ExecuteResult } from "../request/CompileResult";
 
 interface ShowWebviewParams {
@@ -20,7 +20,7 @@ export async function ShowWebview(params: ShowWebviewParams) {
         vscode.ViewColumn.Beside,
         { enableScripts: true, enableFindWidget: true }
     );
-    
+
     panel.iconPath = singleIcon;
     panel.webview.html = getWebviewHtml(context.extensionPath, panel);
     panel.webview.onDidReceiveMessage(message => {
@@ -59,10 +59,6 @@ export async function ClearWebview() {
 }
 
 function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): string {
-    const getUri = (webview: vscode.Webview, extensionUri: vscode.Uri, pathList: string[]) => {
-        return webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...pathList));
-    };
-
     const buildPath = path.join(extensionPath, 'webview-ui', 'build');
     const scriptPath = path.join(buildPath, 'assets', 'index.js');
     const stylePath = path.join(buildPath, 'assets', 'index.css');
@@ -72,7 +68,7 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
 
 
     let colorStyle = "";
-    for (const [key, value] of Object.entries(colorConfig)) {
+    for (const [key, value] of Object.entries(Config.defaultColor())) {
         colorStyle += `.compiler-explorer-${key} { 
             color: ${value}; 
             font-family: ${editorFont}; 
@@ -83,9 +79,7 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
     return `<!DOCTYPE html>
     <html lang="en">
         <head>
-            <style>
-                ${colorStyle}
-            </style>
+            <style> ${colorStyle} </style>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" href="${panel.webview.asWebviewUri(vscode.Uri.file(stylePath))}">

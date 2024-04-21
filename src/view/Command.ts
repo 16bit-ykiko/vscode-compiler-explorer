@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 
 import { logger } from '../request/Logger';
 import { GetEditor } from '../request/Utility';
-import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 import { ShowWebview, ClearWebview } from './WebView';
 import { TreeViewProvider, TreeNode } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
 import { Compile, GetShortLink, LoadShortLink } from '../request/Request';
+import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 
 
 export async function register(context: vscode.ExtensionContext) {
@@ -95,13 +95,20 @@ export async function register(context: vscode.ExtensionContext) {
         const instance = node.instance as CompilerInstance;
         try {
             const result = await Compile(instance);
-
             if (instance instanceof SingleFileInstance) {
                 const editor = GetEditor(instance.input);
                 ShowWebview({ context, result, editor });
             }
+            else {
+                // TODO:
+                // Resolve the issue of MultiFileInstance 
+                // Show the result of CMake Build
+                const buildResult = result.compileResult.buildsteps?.map(step => step.stdout || step.stderr).join('\n');
 
-            console.log(result); // TODO: Show the result of CMake Build
+                // TODO: show the progress of request
+                // TODO: show the line number
+            }
+
         } catch (error: unknown) {
             logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);
         }
@@ -135,9 +142,15 @@ export async function register(context: vscode.ExtensionContext) {
     });
 
     const GetInput = vscode.commands.registerCommand('compiler-explorer.GetInput', async (node: TreeNode) => {
-        const userInput = await vscode.window.showInputBox({ placeHolder: "Enter The text" });
+        const { attr, instance } = node;
+        //@ts-ignore
+        const last = instance[attr] as string;
+        const userInput = await vscode.window.showInputBox({
+            placeHolder: "Enter the text",
+            value: last
+        });
+
         if (userInput) {
-            const { attr, instance } = node;
             //@ts-ignore
             instance[attr] = userInput;
             provider.refresh();

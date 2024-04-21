@@ -1,11 +1,14 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
-export type CompilerConfig = {
+export type OptionsConfig = {
     "compiler": "x86-64 gcc 13.2",
     "language": "c++",
+    "options": "-std=c++17",
     "exec": "",
     "stdin": "",
+    "cmakeArgs": "",
+    "src": "workplace",
     "filters": {
         "binaryObject": false,
         "binary": false,
@@ -31,19 +34,21 @@ export type ColorConfig = {
     "operator": string;
 };
 
-type CompilerOptions = { pattern: RegExp, context: string }[];
+export class Config {
+    static _config = vscode.workspace.getConfiguration("compiler-explorer");
 
-export const compilerConfig = vscode.workspace
-    .getConfiguration("compiler-explorer")
-    .get<CompilerConfig>("compiler.config")!;
+    static defaultOptions() {
+        return Config._config.get<OptionsConfig>("default.options")!;
+    }
 
-export const compilerOptions = vscode.workspace
-    .getConfiguration("compiler-explorer")
-    .get<CompilerOptions>("compiler.options")!;
+    static defaultColor() {
+        return Config._config.get<ColorConfig>("default.color")!;
+    }
 
-export const colorConfig = vscode.workspace
-    .getConfiguration("compiler-explorer")
-    .get<ColorConfig>("color.config")!;
+    static defaultURL() {
+        return Config._config.get<string>("default.url")!;
+    }
+}
 
 const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
 

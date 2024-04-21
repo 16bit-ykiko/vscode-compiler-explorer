@@ -38,91 +38,91 @@
       },
       {
         "command": "compiler-explorer.AddSingleInstance",
-        "title": "Add a New Compiler Instance",
+        "title": "Add New",
         "category": "Compiler Explorer",
         "icon": "$(add)"
       },
       {
         "command": "compiler-explorer.RemoveAll",
-        "title": "Remove All Instances",
+        "title": "Remove All",
         "category": "Compiler Explorer",
         "icon": "$(trashcan)"
       },
       {
         "command": "compiler-explorer.AddMultiInstance",
-        "title": "Add a New CMake Instance",
+        "title": "Add CMake",
         "category": "Compiler Explorer",
         "icon": "$(add)"
       },
       {
         "command": "compiler-explorer.Clear",
-        "title": "Clear All Webview Panels",
+        "title": "Clear All",
         "category": "Compiler Explorer",
         "icon": "$(clear-all)"
       },
       {
         "command": "compiler-explorer.GetLink",
-        "title": "Copy the Unique Link to Clipboard",
+        "title": "Copy Unique Link",
         "category": "Compiler Explorer",
         "icon": "$(link-external)"
       },
       {
         "command": "compiler-explorer.LoadLink",
-        "title": "Load the Compiler Information from Link",
+        "title": "Load Link",
         "category": "Compiler Explorer",
         "icon": "$(link)"
       },
       {
         "command": "compiler-explorer.Remove",
-        "title": "Remove the Current Instance",
+        "title": "Remove Current",
         "category": "Compiler Explorer",
         "icon": "$(trashcan)"
       },
       {
         "command": "compiler-explorer.Compile",
-        "title": "Compile the Current Instance",
+        "title": "Compile Current",
         "category": "Compiler Explorer",
         "icon": "$(run)"
       },
       {
         "command": "compiler-explorer.Clone",
-        "title": "Clone the Current Instance",
+        "title": "Clone Current",
         "category": "Compiler Explorer",
         "icon": "$(expand-all)"
       },
       {
         "command": "compiler-explorer.SelectCompiler",
-        "title": "Select the Compiler",
+        "title": "Select Compiler",
         "category": "Compiler Explorer",
         "icon": "$(list-selection)"
       },
       {
         "command": "compiler-explorer.GetInput",
-        "title": "Get the Input Text",
+        "title": "Get Input",
         "category": "Compiler Explorer",
         "icon": "$(pencil)"
       },
       {
         "command": "compiler-explorer.ClearInput",
-        "title": "Clear the Input Text",
+        "title": "Clear Input",
         "category": "Compiler Explorer",
         "icon": "$(clear-all)"
       },
       {
         "command": "compiler-explorer.CopyText",
-        "title": "Copy text",
+        "title": "Copy Input",
         "category": "Compiler Explorer",
         "icon": "$(clippy)"
       },
       {
         "command": "compiler-explorer.SelectFile",
-        "title": "Select the File",
+        "title": "Select File",
         "category": "Compiler Explorer",
         "icon": "$(file)"
       },
       {
         "command": "compiler-explorer.SelectFolder",
-        "title": "Select the Folder",
+        "title": "Select Folder",
         "category": "Compiler Explorer",
         "icon": "$(folder)"
       }
@@ -212,15 +212,17 @@
       {
         "title": "Compiler-Explorer",
         "properties": {
-          "compiler-explorer.compiler.config": {
+          "compiler-explorer.default.options": {
             "type": "object",
             "description": "The default compiler configuration",
             "default": {
               "compiler": "x86-64 gcc 13.2",
               "language": "c++",
-              "options": "-O2 -Wall",
+              "options": "-std=c++17",
               "exec": "",
               "stdin": "",
+              "cmakeArgs": "",
+              "src": "workspace",
               "filters": {
                 "binaryObject": false,
                 "binary": false,
@@ -236,25 +238,7 @@
               }
             }
           },
-          "compiler-explorer.compiler.options": {
-            "type": "array",
-            "description": "The default compiler options",
-            "default": [
-              {
-                "pattern": "msvc",
-                "context": "/O2 /std:c++20"
-              },
-              {
-                "pattern": "gcc",
-                "context": "-O3 -std=c++20"
-              },
-              {
-                "pattern": "clang",
-                "context": "-O3 -std=c++20"
-              }
-            ]
-          },
-          "compiler-explorer.color.config": {
+          "compiler-explorer.default.color": {
             "type": "object",
             "description": "The default color configuration",
             "default": {
@@ -266,6 +250,11 @@
               "comment": "#7F848E",
               "operator": "#ABB2BF"
             }
+          },
+          "compiler-explorer.default.url": {
+            "type": "string",
+            "description": "The default compiler explorer url",
+            "default": ""
           }
         }
       }

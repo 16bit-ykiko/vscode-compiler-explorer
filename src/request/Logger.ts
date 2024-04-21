@@ -5,6 +5,7 @@ class Logger {
 
     constructor() {
         this.logger = vscode.window.createOutputChannel("Compiler Explorer");
+        this.logger.show();
         this.logger.appendLine("Compiler Explorer is now active!");
     }
 
