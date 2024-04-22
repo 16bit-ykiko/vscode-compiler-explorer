@@ -5,7 +5,7 @@ import { AnsiUp } from 'ansi_up';
 import ResultViewer from './components/ResultViewer';
 import { MessageBase, useVsCode } from './utils/useVsCode';
 import { CompileResult, ExecuteResult } from '../../src/request/CompileResult'
-import { highlight } from './highlight/x86Intel';
+import { highlight } from '../../src/highlight/x86Intel';
 
 
 const ansiUp = new AnsiUp();
