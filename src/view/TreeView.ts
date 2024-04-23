@@ -135,7 +135,7 @@ export class TreeItem implements vscode.TreeItem {
                 this.iconPath = value ? trueIcon : falseIcon;
                 this.command = {
                     title: "Toggle",
-                    command: "compiler-explorer.ToggleFilter",
+                    command: "compiler-explorer.toggleCheckbox",
                     arguments: [node]
                 };
             }
