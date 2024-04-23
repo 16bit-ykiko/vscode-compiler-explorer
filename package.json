@@ -21,6 +21,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "compiler-explorer.view",
+        "contents": "Compiler Explorer is loading..."
+      }
+    ],
     "views": {
       "compiler-explorer": [
         {
