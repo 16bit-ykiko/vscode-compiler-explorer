@@ -1,10 +1,16 @@
 {
+  "icon": "resources/single.png",
   "name": "vscode-compiler-explorer",
-  "displayName": "vscode-compiler-explorer",
-  "description": "",
-  "version": "0.0.1",
+  "displayName": "Compiler Explorer for VSCode",
+  "description": "Out-of-the-box C++ online compiler",
+  "publisher": "ykiko",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/16bit-ykiko/vscode-compiler-explorer"
+  },
+  "version": "0.0.2",
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.79.2"
   },
   "categories": [
     "Other"
