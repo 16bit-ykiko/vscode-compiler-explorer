@@ -8,9 +8,9 @@
     "type": "git",
     "url": "https://github.com/16bit-ykiko/vscode-compiler-explorer"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
-    "vscode": "^1.79.2"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Other"
@@ -279,7 +279,10 @@
     "vscode:prepublish": "npm run package",
     "compile": "webpack",
     "watch": "webpack --watch",
+    "webpack": "webpack --mode development",
+    "webpack-dev": "webpack --mode development --watch",
     "package": "webpack --mode production --devtool hidden-source-map",
+    "test-compile": "tsc -p ./",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
@@ -290,7 +293,7 @@
     "@types/lodash": "^4.17.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
-    "@types/vscode": "^1.88.0",
+    "@types/vscode": "^1.80.0",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
