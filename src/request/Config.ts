@@ -56,3 +56,5 @@ export const Icon = vscode.Uri.file(readResourse("icon.svg"));
 export const cmakeIcon = vscode.Uri.file(readResourse("cmake.svg"));
 export const singleIcon = vscode.Uri.file(readResourse("single.png"));
 export const filtersIcon = vscode.Uri.file(readResourse("filters.svg"));
+export const trueIcon = vscode.Uri.file(readResourse("true.png"));
+export const falseIcon = vscode.Uri.file(readResourse("false.png"));

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { LoadShortLink } from '../request/Request';
-import { singleIcon, cmakeIcon, filtersIcon, Config } from '../request/Config';
+import { singleIcon, cmakeIcon, filtersIcon, trueIcon, falseIcon, Config } from '../request/Config';
 import { CompilerInstance, SingleFileInstance, MultiFileInstance } from './Instance';
 
 export class TreeNode {
@@ -105,6 +105,7 @@ export class TreeItem implements vscode.TreeItem {
     checkboxState?: vscode.TreeItemCheckboxState;
     collapsibleState?: vscode.TreeItemCollapsibleState;
     iconPath?: string | vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri };
+    command?: vscode.Command | undefined;
 
     constructor(node: TreeNode) {
         const { attr, label, context, iconPath, instance } = node;
@@ -128,7 +129,17 @@ export class TreeItem implements vscode.TreeItem {
         if (context === "checkbox") {
             //@ts-ignore
             const value = instance.filters[attr] as boolean;
-            this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
+            if (vscode.version >= "1.80.0") {
+                this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
+            } else {
+                this.iconPath = value ? trueIcon : falseIcon;
+                this.command = {
+                    title: "Toggle",
+                    command: "compiler-explorer.ToggleFilter",
+                    arguments: [node]
+                };
+            }
+
         }
     }
 }

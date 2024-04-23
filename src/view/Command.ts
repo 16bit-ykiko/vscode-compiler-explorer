@@ -14,13 +14,25 @@ export async function register(context: vscode.ExtensionContext) {
     let provider = await TreeViewProvider.create();
     const treeView = vscode.window.createTreeView('compiler-explorer.view', { treeDataProvider: provider });
 
-    treeView.onDidChangeCheckboxState(async (event) => {
-        const [[node]] = event.items;
-        const { attr, instance } = node;
-        //@ts-ignore
-        instance.filters[attr] = !instance.filters[attr];
-        provider.refresh();
-    });
+    // checkbox api is available since vscode 1.80.0
+    // if the version is lower than 1.80.0, use command to toggle checkbox
+    if (vscode.version >= '1.80.0') {
+        treeView.onDidChangeCheckboxState(async (event) => {
+            const [[node]] = event.items;
+            const { attr, instance } = node;
+            //@ts-ignore
+            instance.filters[attr] = !instance.filters[attr];
+            provider.refresh();
+        });
+    }
+    else {
+        vscode.commands.registerCommand('compiler-explorer.toggleCheckbox', async (node: TreeNode) => {
+            const { attr, instance } = node;
+            //@ts-ignore
+            instance.filters[attr] = !instance.filters[attr];
+            provider.refresh();
+        });
+    }
 
     context.subscriptions.push(treeView);
 
