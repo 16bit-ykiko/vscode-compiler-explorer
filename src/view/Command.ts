@@ -37,7 +37,7 @@ export async function register(context: vscode.ExtensionContext) {
     const CompileAll = vscode.commands.registerCommand('compiler-explorer.CompileAll', async () => {
         const instances = provider.instances;
         try {
-            const results = await Promise.all(instances.map(instances => Compile(instances)));
+            const results = instances.map(instances => Compile(instances));
             const editors = instances.map(instance => {
                 if (instance instanceof SingleFileInstance) {
                     return GetEditor(instance.input);
@@ -45,7 +45,7 @@ export async function register(context: vscode.ExtensionContext) {
                 return GetEditor("active");
             });
             for (const i in instances) {
-                //ShowWebview({ context, result: results[i], editor: editors[i] });
+                ShowWebview({ context, result: results[i], editor: editors[i] });
             }
         } catch (error: unknown) {
             logger.error(`Compile failed while compile all, error: ${error}`);

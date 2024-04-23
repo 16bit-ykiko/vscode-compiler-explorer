@@ -80,7 +80,13 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
     return `<!DOCTYPE html>
     <html lang="en">
         <head>
-            <style> ${colorStyle} </style>
+            <style> 
+                .compiler-explorer-output {
+                    font-family: var(--vscode-editor-font-family);
+                    font-size: var(--vscode-editor-font-size);
+                }
+                ${colorStyle} 
+            </style>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <link rel="stylesheet" href="${panel.webview.asWebviewUri(vscode.Uri.file(stylePath))}">

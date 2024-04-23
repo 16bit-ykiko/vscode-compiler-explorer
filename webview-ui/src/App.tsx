@@ -59,16 +59,16 @@ function App() {
         </div>)
       : (
         <VSCodePanels aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
-          <VSCodePanelTab id='asm'>ASM result</VSCodePanelTab>
-          <VSCodePanelTab id='exeout'>Execution Output</VSCodePanelTab>
-          <VSCodePanelTab id='stderr'>Compiler Output {stderrCnt && (stderrCnt > 0 && <VSCodeBadge>{stderrCnt}</VSCodeBadge>)}</VSCodePanelTab>
-          <VSCodePanelView id='asm'>
+          <VSCodePanelTab id='asm' className='compiler-explorer-output'>ASM result</VSCodePanelTab>
+          <VSCodePanelTab id='exeout' className='compiler-explorer-output'>Execution Output</VSCodePanelTab>
+          <VSCodePanelTab id='stderr' className='compiler-explorer-output'>Compiler Output {stderrCnt && (stderrCnt > 0 && <VSCodeBadge>{stderrCnt}</VSCodeBadge>)}</VSCodePanelTab>
+          <VSCodePanelView id='asm' className='compiler-explorer-output'>
             <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
           </VSCodePanelView>
-          <VSCodePanelView id='stdout'>
+          <VSCodePanelView id='stdout' className='compiler-explorer-output'>
             <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
           </VSCodePanelView>
-          <VSCodePanelView id='stderr'>
+          <VSCodePanelView id='stderr' className='compiler-explorer-output'>
             <ResultViewer results={compilerStderrRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
           </VSCodePanelView>
         </VSCodePanels>
