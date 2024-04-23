@@ -5,7 +5,6 @@ class Logger {
 
     constructor() {
         this.logger = vscode.window.createOutputChannel("Compiler Explorer");
-        this.logger.show();
         this.logger.appendLine("Compiler Explorer is now active!");
     }
 
@@ -23,4 +22,8 @@ class Logger {
     }
 }
 
-export const logger = new Logger();
+export function initLogger() {
+    logger = new Logger();
+}
+
+export let logger: Logger;

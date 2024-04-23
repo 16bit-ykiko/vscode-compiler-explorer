@@ -1,19 +1,19 @@
-import { VSCodePanels, VSCodePanelTab, VSCodePanelView, VSCodeBadge } from '@vscode/webview-ui-toolkit/react';
-import { useEffect, useRef, useState } from 'react';
-import { AnsiUp } from 'ansi_up';
 
 import ResultViewer from './components/ResultViewer';
+import { AnsiUp } from 'ansi_up';
+import { useEffect, useRef, useState } from 'react';
+
+import { highlight } from '../../src/highlight/x86Intel';
 import { MessageBase, useVsCode } from './utils/useVsCode';
 import { CompileResult, ExecuteResult } from '../../src/request/CompileResult'
-import { highlight } from '../../src/highlight/x86Intel';
-
+import { VSCodePanels, VSCodePanelTab, VSCodePanelView, VSCodeBadge, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 
 const ansiUp = new AnsiUp();
-
 
 type Response = { compileResult: CompileResult, executeResult?: ExecuteResult };
 
 function App() {
+  const [isLoaded, setIsLoaded] = useState(true);
   const [compileResult, setCompileResult] = useState<Response>();
 
   const activeId = useRef<string>('asm');
@@ -22,6 +22,7 @@ function App() {
   const [sendMessage] = useVsCode(message => {
     switch (message.command) {
       case 'setResults': {
+        setIsLoaded(false);
         type SetResultsMsg = MessageBase & { results: Response };
         setCompileResult((message as SetResultsMsg).results);
       } break;
@@ -51,20 +52,27 @@ function App() {
   };
 
   return (<>
-    <VSCodePanels aria-label='VScode Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
-      <VSCodePanelTab id='asm'>ASM result</VSCodePanelTab>
-      <VSCodePanelTab id='exeout'>Execution Output</VSCodePanelTab>
-      <VSCodePanelTab id='stderr'>Compiler Output {stderrCnt && (stderrCnt > 0 && <VSCodeBadge>{stderrCnt}</VSCodeBadge>)}</VSCodePanelTab>
-      <VSCodePanelView id='asm'>
-        <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
-      </VSCodePanelView>
-      <VSCodePanelView id='stdout'>
-        <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
-      </VSCodePanelView>
-      <VSCodePanelView id='stderr'>
-        <ResultViewer results={compilerStderrRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
-      </VSCodePanelView>
-    </VSCodePanels>
+    {isLoaded
+      ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <VSCodeProgressRing />
+        </div>)
+      : (
+        <VSCodePanels aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
+          <VSCodePanelTab id='asm'>ASM result</VSCodePanelTab>
+          <VSCodePanelTab id='exeout'>Execution Output</VSCodePanelTab>
+          <VSCodePanelTab id='stderr'>Compiler Output {stderrCnt && (stderrCnt > 0 && <VSCodeBadge>{stderrCnt}</VSCodeBadge>)}</VSCodePanelTab>
+          <VSCodePanelView id='asm'>
+            <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
+          </VSCodePanelView>
+          <VSCodePanelView id='stdout'>
+            <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
+          </VSCodePanelView>
+          <VSCodePanelView id='stderr'>
+            <ResultViewer results={compilerStderrRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
+          </VSCodePanelView>
+        </VSCodePanels>
+      )}
   </>);
 }
 
