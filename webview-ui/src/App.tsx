@@ -12,6 +12,15 @@ const ansiUp = new AnsiUp();
 
 type Response = { compileResult: CompileResult, executeResult?: ExecuteResult };
 
+const changeFontSize = (node: HTMLElement, newSize: number) => {
+  if (node.style.fontSize !== `${newSize}px`) {
+    node.style.fontSize = `${newSize}px`;
+  }
+  for (const child of Array.from(node.children) as HTMLElement[]) {
+    changeFontSize(child, newSize);
+  }
+};
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(true);
   const [response, setResponse] = useState<Response>();
@@ -50,6 +59,28 @@ function App() {
     sendMessage({ command: 'gotoLine', lineNo: line });
   };
 
+  // Zoom in/out with Ctrl + Mouse Wheel
+  const [fontSize, setFontSize] = useState(14.0);
+
+  useEffect(() => {
+    const handleWheelEvent = (event: WheelEvent) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+        const zoomDelta = event.deltaY > 0 ? -0.5 : 0.5;
+        setFontSize((prevFontSize) => prevFontSize + zoomDelta);
+
+        const element = document.getElementById('view')!;
+        changeFontSize(element, fontSize + zoomDelta);
+      }
+    };
+
+    document.addEventListener('wheel', handleWheelEvent);
+
+    return () => {
+      document.removeEventListener('wheel', handleWheelEvent);
+    };
+  }, [fontSize]);
+
   return (<>
     {isLoaded
       ? (
@@ -57,7 +88,7 @@ function App() {
           <VSCodeProgressRing />
         </div>)
       : (
-        <VSCodePanels aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
+        <VSCodePanels id="view" aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
           <VSCodePanelTab id='stderr' className='compiler-explorer-output'>Console</VSCodePanelTab>
           <VSCodePanelTab id='asm' className='compiler-explorer-output'>ASM</VSCodePanelTab>
           <VSCodePanelTab id='exeout' className='compiler-explorer-output'>Stdout</VSCodePanelTab>
