@@ -129,6 +129,8 @@ export class TreeItem implements vscode.TreeItem {
         if (context === "checkbox") {
             //@ts-ignore
             const value = instance.filters[attr] as boolean;
+            // checkbox api is available since vscode 1.80.0
+            // if the version is lower than 1.80.0, use command to toggle checkbox
             if (vscode.version >= "1.80.0") {
                 this.checkboxState = value ? vscode.TreeItemCheckboxState.Checked : vscode.TreeItemCheckboxState.Unchecked;
             } else {
@@ -139,7 +141,6 @@ export class TreeItem implements vscode.TreeItem {
                     arguments: [node]
                 };
             }
-
         }
     }
 }
