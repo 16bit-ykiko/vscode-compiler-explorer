@@ -1,4 +1,7 @@
 # Compiler Explorer for VSCode
+
+[English](./README.md) | [中文](./README-zh.md)
+
 [Compiler Explorer](https://github.com/compiler-explorer/compiler-explorer) 是一款流行的在线 C++ 编译器，它支持各种平台，各种不同的编译器版本。不仅可以查看执行结果，还可以查看编译器生成的汇编代码。本插件基于 Compiler Explorer 提供的 [API](https://github.com/compiler-explorer/compiler-explorer/blob/main/docs/API.md) 将它集成到 VSCode 中，使得用户可以在 VSCode 中直接使用 Compiler Explorer 的功能。
 
 ## 效果展示
@@ -92,7 +95,7 @@
     "instruction": "#C678DD",
     "comment": "#7F848E",
     "operator": "#ABB2BF"
-};
+}
 ```
 `compiler-explorer.default.url`：用于打开插件时默认加载的链接，默认是空
 ```json
@@ -102,6 +105,6 @@
 ```
 
 ## 问题反馈
-该插件还处于早期阶段，如果你在使用过程中遇到了问题，或者有任何建议，欢迎在 [GitHub](https://github.com/16bit-ykiko/vscode-compiler-explorer) 上留言讨论。另外 Output 窗口可能会提供一些有用的信息
+该插件还处于早期阶段，如果你在使用过程中遇到了问题，或者有任何建议，欢迎在 [GitHub](https://github.com/16bit-ykiko/vscode-compiler-explorer) 上留言讨论。或者添加 QQ 群：`662499937` 交流。另外 Output 窗口可能会提供一些有用的信息
 
 ![Output](docs/Output.png)
