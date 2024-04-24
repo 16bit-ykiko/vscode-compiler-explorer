@@ -67,7 +67,7 @@ export class TreeNode {
         };
 
         if (instance instanceof SingleFileInstance) {
-            result.children.push({ label: "Input file", attr: "input", context: "file" });
+            result.children.push({ label: "Input", attr: "input", context: "file" });
         }
         else if (instance instanceof MultiFileInstance) {
             result.children.push({ label: "CMake Arguments", attr: "cmakeArgs", context: "text" });
@@ -79,7 +79,7 @@ export class TreeNode {
 
         // if the compiler supports execute, add the exec and stdin fields
         if (info.supportsExecute) {
-            result.children.push({ label: "Exec", attr: "exec", context: "text" },);
+            result.children.push({ label: "Execute Arguments", attr: "exec", context: "text" },);
             result.children.push({ label: "Stdin", attr: "stdin", context: "text" },);
         }
 

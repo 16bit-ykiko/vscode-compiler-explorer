@@ -74,7 +74,7 @@
       },
       {
         "command": "compiler-explorer.GetLink",
-        "title": "Copy Unique Link",
+        "title": "Share Link",
         "category": "Compiler Explorer",
         "icon": "$(link-external)"
       },
