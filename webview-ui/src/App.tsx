@@ -48,11 +48,36 @@ function App() {
   useEffect(() => sendMessage({ command: 'ready' }), [sendMessage]);
 
   const asmText2html = (text: string) => highlight(text);
-  const consoleText2html = (text: string) => ansiUp.ansi_to_html(text);
+  const consoleText2html = (text: string) => `<span class="compiler-explorer-output">${ansiUp.ansi_to_html(text)}</span>`;
 
-  const asmRes = response?.compileResult.asm?.map(x => ({ html: asmText2html(x.text), lineNo: x.source?.line }));
-  const compilerStderrRes = response?.compileResult.stderr.map(x => ({ html: consoleText2html(x.text), lineNo: x.tag?.line }));
+  //const compilerStderrRes = compileResult?.compileResult.stderr.map(x => ({ html: consoleText2html(x.text), lineNo: x.tag?.line }));
+  const consoleOutput = (() => {
+    const result: { html: string, lineNo: number | null }[] = [];
+    for (const step of response?.compileResult?.buildsteps || []) {
+      for (const line of step.stdout) {
+        result.push({ html: consoleText2html(line.text), lineNo: null });
+      }
+    }
+    for (const step of response?.compileResult?.buildsteps || []) {
+      for (const line of step.stderr) {
+        result.push({ html: consoleText2html(line.text), lineNo: null });
+      }
+    }
+
+    // for cmake
+    response?.compileResult?.result?.stderr?.forEach(x => result.push({ html: consoleText2html(x.text), lineNo: null }));
+    response?.compileResult?.result?.stdout?.forEach(x => result.push({ html: consoleText2html(x.text), lineNo: null }));
+
+    // for single file
+    response?.compileResult?.stderr?.forEach(x => result.push({ html: consoleText2html(x.text), lineNo: null }));
+    response?.compileResult?.stdout?.forEach(x => result.push({ html: consoleText2html(x.text), lineNo: null }));
+
+    return result;
+  })();
+
+  const asmRes = (response?.compileResult.asm || response?.compileResult.result?.asm)?.map(x => ({ html: asmText2html(x.text), lineNo: x.source?.line }));
   const execStdoutRes = response?.executeResult?.stdout?.map(x => ({ html: consoleText2html(x.text) }));
+
 
   const onSelect = (line: number) => {
     // @ts-expect-error TODO: better type hint
@@ -92,13 +117,13 @@ function App() {
           <VSCodePanelTab id='stderr' className='compiler-explorer-output'>Console</VSCodePanelTab>
           <VSCodePanelTab id='asm' className='compiler-explorer-output'>ASM</VSCodePanelTab>
           <VSCodePanelTab id='exeout' className='compiler-explorer-output'>Stdout</VSCodePanelTab>
-          <VSCodePanelView id='stderr' className='compiler-explorer-output'>
-            <ResultViewer results={compilerStderrRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
+          <VSCodePanelView id='stderr'>
+            <ResultViewer results={consoleOutput} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
           </VSCodePanelView>
-          <VSCodePanelView id='asm' className='compiler-explorer-output'>
+          <VSCodePanelView id='asm'>
             <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
           </VSCodePanelView>
-          <VSCodePanelView id='stdout' className='compiler-explorer-output'>
+          <VSCodePanelView id='stdout'>
             <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
           </VSCodePanelView>
 

@@ -107,20 +107,8 @@ export async function register(context: vscode.ExtensionContext) {
         const instance = node.instance as CompilerInstance;
         const result = Compile(instance);
         try {
-            if (instance instanceof SingleFileInstance) {
-                const editor = GetEditor(instance.input);
-                ShowWebview({ context, editor, result });
-            }
-            else {
-                // TODO:
-                // Resolve the issue of MultiFileInstance 
-                // Show the result of CMake Build
-                //const buildResult = result.compileResult.buildsteps?.map(step => step.stdout || step.stderr).join('\n');
-
-                // TODO: show the progress of request
-                // TODO: show the line number
-            }
-
+            const editor = instance instanceof SingleFileInstance ? GetEditor(instance.input) : GetEditor("active");
+            ShowWebview({ context, editor, result });
         } catch (error: unknown) {
             logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);
         }

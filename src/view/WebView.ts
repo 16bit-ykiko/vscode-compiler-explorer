@@ -72,21 +72,18 @@ function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): stri
     for (const [key, value] of Object.entries(Config.defaultColor())) {
         colorStyle += `.compiler-explorer-${key} { 
             color: ${value}; 
-            font-family: var(--vscode-editor-font-family); 
+            font-family: var(--vscode-editor-font-family);
             font-size: var(--vscode-editor-font-size); 
         }\n`;
     }
-
-    const editorFamily = vscode.workspace.getConfiguration().get('editor.fontFamily');
-    const editorSize = vscode.workspace.getConfiguration().get('editor.fontSize');
 
     return `<!DOCTYPE html>
     <html lang="en">
         <head>
             <style> 
                 .compiler-explorer-output {
-                    font-family: ${editorFamily};
-                    font-size: ${editorSize}px;
+                    font-family: var(--vscode-editor-font-family);
+                    font-size: var(--vscode-editor-font-size);
                 }
                 ${colorStyle} 
             </style>

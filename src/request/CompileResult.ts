@@ -136,8 +136,8 @@ export type CompileResult = {
     inputFilename?: string;
     asm?: ResultLine[];
     devices?: Record<string, CompileResult>;
-    stdout: ResultLine[];
-    stderr: ResultLine[];
+    stdout?: ResultLine[];
+    stderr?: ResultLine[];
     truncated?: boolean;
     didExecute?: boolean;
     execResult?: {
