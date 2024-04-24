@@ -1,5 +1,5 @@
 import { QueryCompilerInfo } from './CompilerInfo';
-import { ReadSource, ReadCMakeSource, WriteFile, WriteFiles } from "./Utility";
+import { ReadSource, ReadCMakeSource, WriteTemp, WriteTemps } from "./Utility";
 import { CompilerInstance, SingleFileInstance, MultiFileInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ClientStateCompiler {
@@ -155,7 +155,7 @@ export class ClientState {
         let instances: CompilerInstance[] = [];
         for (const session of this.sessions) {
             if (session.language === "c++") {
-                const path = await WriteFile(session.source);
+                const path = await WriteTemp(session.source);
 
                 const toSingle = async (compiler: ClientStateCompiler) => {
                     const instance = new SingleFileInstance();
@@ -178,7 +178,7 @@ export class ClientState {
 
         if (this.trees.length > 0) {
             const tree = this.trees[0];
-            const path = await WriteFiles(tree.files);
+            const path = await WriteTemps(tree.files);
 
             const toMulti = async (compiler: ClientStateCompiler) => {
                 const instance = new MultiFileInstance();

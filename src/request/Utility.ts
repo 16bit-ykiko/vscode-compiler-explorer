@@ -100,7 +100,12 @@ export async function ReadCMakeSource(src: string) {
     }
 }
 
-export async function WriteFile(contents: string) {
+export async function WriteFile(path: string, contents: string) {
+    const uri = vscode.Uri.file(path);
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(contents, 'utf8'));
+}
+
+export async function WriteTemp(contents: string) {
     const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
     if (!workspacePath) {
         throw Error("No workspace folder found");
@@ -124,7 +129,7 @@ export async function WriteFile(contents: string) {
     return filename;
 }
 
-export async function WriteFiles(files: { filename: string, content: string }[]) {
+export async function WriteTemps(files: { filename: string, content: string }[]) {
 
     const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
     if (!workspacePath) {

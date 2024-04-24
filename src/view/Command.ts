@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { logger } from '../request/Logger';
-import { GetEditor } from '../request/Utility';
+import { GetEditor, WriteFile } from '../request/Utility';
 import { ShowWebview, ClearWebview } from './WebView';
 import { TreeViewProvider, TreeNode } from './TreeView';
 import { GetCompilerInfos, QueryCompilerInfo } from '../request/CompilerInfo';
@@ -56,8 +56,12 @@ export async function register(context: vscode.ExtensionContext) {
                 }
                 return GetEditor("active");
             });
-            for (const i in instances) {
-                ShowWebview({ context, result: results[i], editor: editors[i] });
+            for (let i = 0; i < instances.length; i++) {
+                if (instances[i].output === "webview") {
+                    ShowWebview({ context, editor: editors[i], result: results[i] });
+                } else {
+                    WriteFile(instances[i].output, (await results[i])?.compileResult?.asm?.map(asm => asm.text).join('\n') || "");
+                }
             }
         } catch (error: unknown) {
             logger.error(`Compile failed while compile all, error: ${error}`);
@@ -103,12 +107,16 @@ export async function register(context: vscode.ExtensionContext) {
     context.subscriptions.push(RemoveAll);
     context.subscriptions.push(Clear);
 
-    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', (node: TreeNode) => {
+    const Compile_ = vscode.commands.registerCommand('compiler-explorer.Compile', async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         const result = Compile(instance);
         try {
             const editor = instance instanceof SingleFileInstance ? GetEditor(instance.input) : GetEditor("active");
-            ShowWebview({ context, editor, result });
+            if (instance.output === "webview") {
+                ShowWebview({ context, editor, result });
+            } else {
+                WriteFile(instance.output, (await result)?.compileResult?.asm?.map(asm => asm.text).join('\n') || "");
+            }
         } catch (error: unknown) {
             logger.error(`Compile failed while compile for ${instance.compilerInfo?.name}, error: ${(error as Error).message}`);
         }
