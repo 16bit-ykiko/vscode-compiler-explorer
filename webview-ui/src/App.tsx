@@ -75,8 +75,8 @@ function App() {
     return result;
   })();
 
-  const asmRes = (response?.compileResult.asm || response?.compileResult.result?.asm)?.map(x => ({ html: asmText2html(x.text), lineNo: x.source?.line }));
-  const execStdoutRes = response?.executeResult?.stdout?.map(x => ({ html: consoleText2html(x.text) }));
+  const asmRes = (response?.compileResult.result?.asm || response?.compileResult.asm)?.map(x => ({ html: asmText2html(x.text), lineNo: x.source?.line }));
+  const execStdoutRes = (response?.executeResult?.execResult || response?.executeResult)?.stdout?.map(x => ({ html: consoleText2html(x.text) }));
 
 
   const onSelect = (line: number) => {

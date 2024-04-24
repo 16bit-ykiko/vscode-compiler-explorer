@@ -224,13 +224,14 @@ export type CompileResult = {
 };
 
 export type ExecuteResult = {
-    code: number;
-    okToCache: boolean;
-    stdout: ResultLine[];
-    stderr: ResultLine[];
-    execTime: string;
+    code?: number;
+    okToCache?: boolean;
+    stdout?: ResultLine[];
+    stderr?: ResultLine[];
+    execTime?: string;
     processExecutionResultTime?: number;
-    timedOut: boolean;
+    timedOut?: boolean;
     languageId?: string;
     truncated?: boolean;
+    execResult?: ExecuteResult;
 };
