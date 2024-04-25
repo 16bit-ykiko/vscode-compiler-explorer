@@ -1,311 +1,327 @@
 {
-  "icon": "resources/single.png",
-  "name": "vscode-compiler-explorer",
-  "displayName": "Compiler Explorer for VSCode",
-  "description": "Out-of-the-box C++ online compiler",
-  "publisher": "ykiko",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/16bit-ykiko/vscode-compiler-explorer"
-  },
-  "version": "0.9.9",
-  "engines": {
-    "vscode": "^1.65.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "compiler-explorer",
-          "title": "Compiler Explorer",
-          "icon": "resources/icon.svg"
-        }
-      ]
+    "icon": "resources/single.png",
+    "name": "vscode-compiler-explorer",
+    "displayName": "Compiler Explorer for VSCode",
+    "description": "Out-of-the-box C++ online compiler",
+    "publisher": "ykiko",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/16bit-ykiko/vscode-compiler-explorer"
     },
-    "viewsWelcome": [
-      {
-        "view": "compiler-explorer.view",
-        "contents": "Compiler Explorer is loading..."
-      }
+    "version": "0.9.9",
+    "engines": {
+        "vscode": "^1.65.0"
+    },
+    "categories": [
+        "Other"
     ],
-    "views": {
-      "compiler-explorer": [
-        {
-          "id": "compiler-explorer.view",
-          "name": "Compiler Explorer"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "compiler-explorer.CompileAll",
-        "title": "Compile All Instances",
-        "category": "Compiler Explorer",
-        "icon": "$(run-all)"
-      },
-      {
-        "command": "compiler-explorer.AddSingleInstance",
-        "title": "Add New",
-        "category": "Compiler Explorer",
-        "icon": "$(add)"
-      },
-      {
-        "command": "compiler-explorer.RemoveAll",
-        "title": "Remove All",
-        "category": "Compiler Explorer",
-        "icon": "$(trashcan)"
-      },
-      {
-        "command": "compiler-explorer.AddMultiInstance",
-        "title": "Add CMake",
-        "category": "Compiler Explorer",
-        "icon": "$(add)"
-      },
-      {
-        "command": "compiler-explorer.Clear",
-        "title": "Clear All",
-        "category": "Compiler Explorer",
-        "icon": "$(clear-all)"
-      },
-      {
-        "command": "compiler-explorer.GetLink",
-        "title": "Share Link",
-        "category": "Compiler Explorer",
-        "icon": "$(link-external)"
-      },
-      {
-        "command": "compiler-explorer.LoadLink",
-        "title": "Load Link",
-        "category": "Compiler Explorer",
-        "icon": "$(link)"
-      },
-      {
-        "command": "compiler-explorer.Remove",
-        "title": "Remove Current",
-        "category": "Compiler Explorer",
-        "icon": "$(trashcan)"
-      },
-      {
-        "command": "compiler-explorer.Compile",
-        "title": "Compile Current",
-        "category": "Compiler Explorer",
-        "icon": "$(run)"
-      },
-      {
-        "command": "compiler-explorer.Clone",
-        "title": "Clone Current",
-        "category": "Compiler Explorer",
-        "icon": "$(expand-all)"
-      },
-      {
-        "command": "compiler-explorer.SelectCompiler",
-        "title": "Select Compiler",
-        "category": "Compiler Explorer",
-        "icon": "$(list-selection)"
-      },
-      {
-        "command": "compiler-explorer.GetInput",
-        "title": "Get Input",
-        "category": "Compiler Explorer",
-        "icon": "$(pencil)"
-      },
-      {
-        "command": "compiler-explorer.ClearInput",
-        "title": "Clear Input",
-        "category": "Compiler Explorer",
-        "icon": "$(clear-all)"
-      },
-      {
-        "command": "compiler-explorer.CopyText",
-        "title": "Copy Input",
-        "category": "Compiler Explorer",
-        "icon": "$(clippy)"
-      },
-      {
-        "command": "compiler-explorer.SelectFile",
-        "title": "Select File",
-        "category": "Compiler Explorer",
-        "icon": "$(file)"
-      },
-      {
-        "command": "compiler-explorer.SelectFolder",
-        "title": "Select Folder",
-        "category": "Compiler Explorer",
-        "icon": "$(folder)"
-      }
-    ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "compiler-explorer.CompileAll",
-          "when": "view == compiler-explorer.view",
-          "group": "navigation@1"
+    "activationEvents": [],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "compiler-explorer",
+                    "title": "Compiler Explorer",
+                    "icon": "resources/icon.svg"
+                }
+            ]
         },
-        {
-          "command": "compiler-explorer.AddSingleInstance",
-          "when": "view == compiler-explorer.view",
-          "group": "navigation@2"
-        },
-        {
-          "command": "compiler-explorer.GetLink",
-          "when": "view == compiler-explorer.view",
-          "group": "navigation@3"
-        },
-        {
-          "command": "compiler-explorer.AddMultiInstance",
-          "when": "view == compiler-explorer.view"
-        },
-        {
-          "command": "compiler-explorer.LoadLink",
-          "when": "view == compiler-explorer.view"
-        },
-        {
-          "command": "compiler-explorer.RemoveAll",
-          "when": "view == compiler-explorer.view"
-        },
-        {
-          "command": "compiler-explorer.Clear",
-          "when": "view == compiler-explorer.view"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "compiler-explorer.Compile",
-          "when": "view == compiler-explorer.view && viewItem == instance",
-          "group": "inline@1"
-        },
-        {
-          "command": "compiler-explorer.Clone",
-          "when": "view == compiler-explorer.view && viewItem == instance",
-          "group": "inline@2"
-        },
-        {
-          "command": "compiler-explorer.Remove",
-          "when": "view == compiler-explorer.view && viewItem == instance",
-          "group": "inline@3"
-        },
-        {
-          "command": "compiler-explorer.SelectCompiler",
-          "when": "view == compiler-explorer.view && viewItem == select",
-          "group": "inline"
-        },
-        {
-          "command": "compiler-explorer.GetInput",
-          "when": "view == compiler-explorer.view && viewItem == text",
-          "group": "inline@1"
-        },
-        {
-          "command": "compiler-explorer.ClearInput",
-          "when": "view == compiler-explorer.view && viewItem == text",
-          "group": "inline@2"
-        },
-        {
-          "command": "compiler-explorer.CopyText",
-          "when": "view == compiler-explorer.view && (viewItem == select || viewItem == text)"
-        },
-        {
-          "command": "compiler-explorer.SelectFile",
-          "when": "view == compiler-explorer.view && viewItem == file",
-          "group": "inline@1"
-        },
-        {
-          "command": "compiler-explorer.SelectFolder",
-          "when": "view == compiler-explorer.view && viewItem == folder",
-          "group": "inline@2"
-        }
-      ]
-    },
-    "configuration": [
-      {
-        "title": "Compiler-Explorer",
-        "properties": {
-          "compiler-explorer.default.options": {
-            "type": "object",
-            "description": "The default compiler configuration",
-            "default": {
-              "compiler": "x86-64 gcc 13.2",
-              "language": "c++",
-              "options": "-std=c++17",
-              "exec": "",
-              "stdin": "",
-              "cmakeArgs": "",
-              "src": "workspace",
-              "filters": {
-                "binaryObject": false,
-                "binary": false,
-                "execute": false,
-                "intel": true,
-                "demangle": true,
-                "labels": true,
-                "libraryCode": true,
-                "directives": true,
-                "commentOnly": true,
-                "trim": false,
-                "debugCalls": false
-              }
+        "viewsWelcome": [
+            {
+                "view": "compiler-explorer.view",
+                "contents": "Compiler Explorer is loading..."
             }
-          },
-          "compiler-explorer.default.color": {
-            "type": "object",
-            "description": "The default color configuration",
-            "default": {
-              "symbol": "#61AFEF",
-              "string": "#98C379",
-              "number": "#D19A66",
-              "register": "#E5C07B",
-              "instruction": "#C678DD",
-              "comment": "#7F848E",
-              "operator": "#ABB2BF"
+        ],
+        "views": {
+            "compiler-explorer": [
+                {
+                    "id": "compiler-explorer.view",
+                    "name": "Compiler Explorer"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "compiler-explorer.CompileAll",
+                "title": "Compile All Instances",
+                "category": "Compiler Explorer",
+                "icon": "$(run-all)"
+            },
+            {
+                "command": "compiler-explorer.AddSingleInstance",
+                "title": "Add New",
+                "category": "Compiler Explorer",
+                "icon": "$(add)"
+            },
+            {
+                "command": "compiler-explorer.RemoveAll",
+                "title": "Remove All",
+                "category": "Compiler Explorer",
+                "icon": "$(trashcan)"
+            },
+            {
+                "command": "compiler-explorer.AddMultiInstance",
+                "title": "Add CMake",
+                "category": "Compiler Explorer",
+                "icon": "$(add)"
+            },
+            {
+                "command": "compiler-explorer.Clear",
+                "title": "Clear All",
+                "category": "Compiler Explorer",
+                "icon": "$(clear-all)"
+            },
+            {
+                "command": "compiler-explorer.GetLink",
+                "title": "Share Link",
+                "category": "Compiler Explorer",
+                "icon": "$(link-external)"
+            },
+            {
+                "command": "compiler-explorer.LoadLink",
+                "title": "Load Link",
+                "category": "Compiler Explorer",
+                "icon": "$(link)"
+            },
+            {
+                "command": "compiler-explorer.Remove",
+                "title": "Remove Current",
+                "category": "Compiler Explorer",
+                "icon": "$(trashcan)"
+            },
+            {
+                "command": "compiler-explorer.Compile",
+                "title": "Compile Current",
+                "category": "Compiler Explorer",
+                "icon": "$(run)"
+            },
+            {
+                "command": "compiler-explorer.Clone",
+                "title": "Clone Current",
+                "category": "Compiler Explorer",
+                "icon": "$(expand-all)"
+            },
+            {
+                "command": "compiler-explorer.SelectCompiler",
+                "title": "Select Compiler",
+                "category": "Compiler Explorer",
+                "icon": "$(list-selection)"
+            },
+            {
+                "command": "compiler-explorer.GetInput",
+                "title": "Get Input",
+                "category": "Compiler Explorer",
+                "icon": "$(pencil)"
+            },
+            {
+                "command": "compiler-explorer.ClearInput",
+                "title": "Clear Input",
+                "category": "Compiler Explorer",
+                "icon": "$(clear-all)"
+            },
+            {
+                "command": "compiler-explorer.CopyText",
+                "title": "Copy Input",
+                "category": "Compiler Explorer",
+                "icon": "$(clippy)"
+            },
+            {
+                "command": "compiler-explorer.OpenTempFile",
+                "title": "Open Temp File",
+                "category": "Compiler Explorer",
+                "icon": "$(file)"
+            },
+            {
+                "command": "compiler-explorer.SelectFile",
+                "title": "Select File",
+                "category": "Compiler Explorer",
+                "icon": "$(file)"
+            },
+            {
+                "command": "compiler-explorer.SelectFolder",
+                "title": "Select Folder",
+                "category": "Compiler Explorer",
+                "icon": "$(folder)"
             }
-          },
-          "compiler-explorer.default.url": {
-            "type": "string",
-            "description": "The default compiler explorer url",
-            "default": ""
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "install:all": "npm install && cd webview-ui && npm install",
-    "start:webview": "cd webview-ui && npm run start",
-    "build:webview": "cd webview-ui && npm run build",
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "test-compile": "tsc -p ./",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.17.0",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
-    "@types/vscode": "^1.65.0",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
-    "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.9",
-    "eslint": "^8.57.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.3.3",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4"
-  },
-  "dependencies": {
-    "axios": "^1.6.8",
-    "lodash": "^4.17.21"
-  }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "compiler-explorer.CompileAll",
+                    "when": "view == compiler-explorer.view",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "compiler-explorer.AddSingleInstance",
+                    "when": "view == compiler-explorer.view",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "compiler-explorer.GetLink",
+                    "when": "view == compiler-explorer.view",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "compiler-explorer.AddMultiInstance",
+                    "when": "view == compiler-explorer.view"
+                },
+                {
+                    "command": "compiler-explorer.LoadLink",
+                    "when": "view == compiler-explorer.view"
+                },
+                {
+                    "command": "compiler-explorer.RemoveAll",
+                    "when": "view == compiler-explorer.view"
+                },
+                {
+                    "command": "compiler-explorer.Clear",
+                    "when": "view == compiler-explorer.view"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "compiler-explorer.Compile",
+                    "when": "view == compiler-explorer.view && viewItem == instance",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "compiler-explorer.Clone",
+                    "when": "view == compiler-explorer.view && viewItem == instance",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "compiler-explorer.Remove",
+                    "when": "view == compiler-explorer.view && viewItem == instance",
+                    "group": "inline@3"
+                },
+                {
+                    "command": "compiler-explorer.SelectCompiler",
+                    "when": "view == compiler-explorer.view && viewItem == select",
+                    "group": "inline"
+                },
+                {
+                    "command": "compiler-explorer.GetInput",
+                    "when": "view == compiler-explorer.view && viewItem == text",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "compiler-explorer.ClearInput",
+                    "when": "view == compiler-explorer.view && viewItem == text",
+                    "group": "inline@2"
+                },
+                {
+                    "command": "compiler-explorer.OpenTempFile",
+                    "when": "view == compiler-explorer.view && viewItem == text"
+                },
+                {
+                    "command": "compiler-explorer.SelectFile",
+                    "when": "view == compiler-explorer.view && viewItem == text"
+                },
+                {
+                    "command": "compiler-explorer.CopyText",
+                    "when": "view == compiler-explorer.view && (viewItem == select || viewItem == text)"
+                },
+                {
+                    "command": "compiler-explorer.SelectFile",
+                    "when": "view == compiler-explorer.view && viewItem == file",
+                    "group": "inline@1"
+                },
+                {
+                    "command": "compiler-explorer.SelectFolder",
+                    "when": "view == compiler-explorer.view && viewItem == folder",
+                    "group": "inline@1"
+                }
+            ]
+        },
+        "configuration": [
+            {
+                "title": "Compiler-Explorer",
+                "properties": {
+                    "compiler-explorer.default.options": {
+                        "type": "object",
+                        "description": "The default compiler configuration",
+                        "default": {
+                            "compiler": "x86-64 gcc 13.2",
+                            "language": "c++",
+                            "options": "-std=c++17",
+                            "input": "active",
+                            "output": "webview",
+                            "exec": "",
+                            "stdin": "",
+                            "cmakeArgs": "",
+                            "src": "workspace",
+                            "filters": {
+                                "binaryObject": false,
+                                "binary": false,
+                                "execute": false,
+                                "intel": true,
+                                "demangle": true,
+                                "labels": true,
+                                "libraryCode": true,
+                                "directives": true,
+                                "commentOnly": true,
+                                "trim": false,
+                                "debugCalls": false
+                            }
+                        }
+                    },
+                    "compiler-explorer.default.color": {
+                        "type": "object",
+                        "description": "The default color configuration",
+                        "default": {
+                            "symbol": "#61AFEF",
+                            "string": "#98C379",
+                            "number": "#D19A66",
+                            "register": "#E5C07B",
+                            "instruction": "#C678DD",
+                            "comment": "#7F848E",
+                            "operator": "#ABB2BF"
+                        }
+                    },
+                    "compiler-explorer.default.url": {
+                        "type": "string",
+                        "description": "The default compiler explorer url",
+                        "default": ""
+                    }
+                }
+            }
+        ]
+    },
+    "scripts": {
+        "install:all": "npm install && cd webview-ui && npm install",
+        "start:webview": "cd webview-ui && npm run start",
+        "build:webview": "cd webview-ui && npm run build",
+        "vscode:prepublish": "npm run package",
+        "compile": "webpack",
+        "watch": "webpack --watch",
+        "webpack": "webpack --mode development",
+        "webpack-dev": "webpack --mode development --watch",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "test-compile": "tsc -p ./",
+        "compile-tests": "tsc -p . --outDir out",
+        "watch-tests": "tsc -p . -w --outDir out",
+        "pretest": "npm run compile-tests && npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.17.0",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "18.x",
+        "@types/vscode": "^1.65.0",
+        "@typescript-eslint/eslint-plugin": "^7.4.0",
+        "@typescript-eslint/parser": "^7.4.0",
+        "@vscode/test-cli": "^0.0.8",
+        "@vscode/test-electron": "^2.3.9",
+        "eslint": "^8.57.0",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.3.3",
+        "webpack": "^5.91.0",
+        "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "axios": "^1.6.8",
+        "lodash": "^4.17.21"
+    }
 }

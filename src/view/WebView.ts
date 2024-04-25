@@ -1,72 +1,95 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
+import * as path from "path";
+import * as vscode from "vscode";
 
-import { throttle } from 'lodash';
-import { singleIcon, Config } from '../request/Config';
-import { CompileResult, ExecuteResult } from "../request/CompileResult";
+import { result, throttle } from "lodash";
+import { Response } from "../request/CompileResult";
+import { singleIcon, Config } from "../request/Config";
 
 interface ShowWebviewParams {
     context: vscode.ExtensionContext;
     editor: vscode.TextEditor;
-    result: Promise<{ compileResult: CompileResult, executeResult?: ExecuteResult }>
-};
+}
 
-const panels: vscode.WebviewPanel[] = [];
+export class WebviewPanel {
+    public panel: vscode.WebviewPanel;
+    public ready: boolean = false;
 
-export async function ShowWebview(params: ShowWebviewParams) {
-    const { context, editor, result } = params;
+    static panels: vscode.WebviewPanel[] = [];
 
-    const panel = vscode.window.createWebviewPanel(
-        'compiler-explorer-webview',
-        'Compiler Explorer',
-        vscode.ViewColumn.Beside,
-        { enableScripts: true, enableFindWidget: true }
-    );
+    constructor(params: ShowWebviewParams) {
+        const { context, editor } = params;
+        const active = vscode.window.activeTextEditor;
 
-    panels.push(panel);
-    panel.iconPath = singleIcon;
-    panel.webview.html = getWebviewHtml(context.extensionPath, panel);
-    panel.webview.onDidReceiveMessage(async (message) => {
-        switch (message.command) {
-            case 'ready': {
-                panel.webview.postMessage({ command: 'setResults', results: await result });
-            } return;
-            case 'gotoLine': {
-                const lineNo = message.lineNo as number;
-                if (lineNo < 0 || lineNo === editor.selection.active.line || lineNo >= editor.document.lineCount) {
-                    break;
-                }
-                editor.selection = new vscode.Selection(lineNo, 0, lineNo, 0);
-                editor.revealRange(
-                    new vscode.Range(lineNo, 0, lineNo, 0),
-                    vscode.TextEditorRevealType.InCenter
-                );
-            } return;
+        const panel = vscode.window.createWebviewPanel(
+            "compiler-explorer-webview",
+            "Compiler Explorer",
+            vscode.ViewColumn.Beside,
+            { enableScripts: true, enableFindWidget: true, retainContextWhenHidden: true }
+        );
+
+        panel.iconPath = singleIcon;
+        panel.webview.html = getWebviewHtml(context.extensionPath, panel);
+        panel.webview.onDidReceiveMessage((message) => {
+            switch (message.command) {
+                case "ready":
+                    {
+                        this.ready = true;
+                    }
+                    return;
+                case "gotoLine":
+                    {
+                        const lineNo = message.lineNo as number;
+                        if (
+                            lineNo < 0 ||
+                            lineNo === editor.selection.active.line ||
+                            lineNo >= editor.document.lineCount
+                        ) {
+                            break;
+                        }
+                        editor.selection = new vscode.Selection(lineNo, 0, lineNo, 0);
+                        editor.revealRange(
+                            new vscode.Range(lineNo, 0, lineNo, 0),
+                            vscode.TextEditorRevealType.InCenter
+                        );
+                    }
+                    return;
+            }
+        });
+
+        const selectionChangedHandler = (event: vscode.TextEditorSelectionChangeEvent) => {
+            if (event.textEditor === editor) {
+                const lineNo = editor.selection.active.line;
+                panel.webview.postMessage({ command: "gotoLine", lineNo });
+            }
+        };
+
+        const disposable = vscode.window.onDidChangeTextEditorSelection(throttle(selectionChangedHandler, 100));
+        context.subscriptions.push(disposable);
+
+        if (active) {
+            vscode.window.showTextDocument(active.document, active.viewColumn);
         }
-    });
 
-    const selectionChangedHandler = (event: vscode.TextEditorSelectionChangeEvent) => {
-        if (event.textEditor === editor) {
-            const lineNo = editor.selection.active.line;
-            panel.webview.postMessage({ command: 'gotoLine', lineNo });
-        }
-    };
-
-    const disposable = vscode.window.onDidChangeTextEditorSelection(throttle(selectionChangedHandler, 100));
-    context.subscriptions.push(disposable);
-};
-
-export function ClearWebview() {
-    for (const panel of panels) {
-        panel.dispose();
+        WebviewPanel.panels.push(panel);
+        this.panel = panel;
     }
-    panels.length = 0;
+
+    postMessage(response: Response) {
+        this.panel.webview.postMessage({ command: "setResults", results: response });
+    }
+
+    static clear() {
+        for (const panel of WebviewPanel.panels) {
+            panel.dispose();
+        }
+        WebviewPanel.panels = [];
+    }
 }
 
 function getWebviewHtml(extensionPath: string, panel: vscode.WebviewPanel): string {
-    const buildPath = path.join(extensionPath, 'webview-ui', 'build');
-    const scriptPath = path.join(buildPath, 'assets', 'index.js');
-    const stylePath = path.join(buildPath, 'assets', 'index.css');
+    const buildPath = path.join(extensionPath, "webview-ui", "build");
+    const scriptPath = path.join(buildPath, "assets", "index.js");
+    const stylePath = path.join(buildPath, "assets", "index.css");
 
     let colorStyle = "";
     for (const [key, value] of Object.entries(Config.defaultColor())) {

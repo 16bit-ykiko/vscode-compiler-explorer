@@ -40,7 +40,7 @@ export type ResultLine = {
 // TODO:
 export type LanguageKey = {};
 
-export type ToolTypeKey = 'independent' | 'postcompilation';
+export type ToolTypeKey = "independent" | "postcompilation";
 
 export type ToolInfo = {
     id: string;
@@ -66,14 +66,14 @@ export type Tool = {
 };
 
 export enum ArtifactType {
-    download = 'application/octet-stream',
-    nesrom = 'nesrom',
-    bbcdiskimage = 'bbcdiskimage',
-    zxtape = 'zxtape',
-    smsrom = 'smsrom',
-    timetrace = 'timetracejson',
-    c64prg = 'c64prg',
-    heaptracktxt = 'heaptracktxt',
+    download = "application/octet-stream",
+    nesrom = "nesrom",
+    bbcdiskimage = "bbcdiskimage",
+    zxtape = "zxtape",
+    smsrom = "smsrom",
+    timetrace = "timetracejson",
+    c64prg = "c64prg",
+    heaptracktxt = "heaptracktxt",
 }
 
 export type Artifact = {
@@ -87,7 +87,7 @@ export type ToolResult = {
     id: string;
     name?: string;
     code: number;
-    languageId?: LanguageKey | 'stderr';
+    languageId?: LanguageKey | "stderr";
     stderr: ResultLine[];
     stdout: ResultLine[];
     artifact?: Artifact;
@@ -235,3 +235,5 @@ export type ExecuteResult = {
     truncated?: boolean;
     execResult?: ExecuteResult;
 };
+
+export type Response = { compileResult: CompileResult; executeResult?: ExecuteResult };

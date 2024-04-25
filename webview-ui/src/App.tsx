@@ -5,12 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 
 import { highlight } from '../../src/highlight/x86Intel';
 import { MessageBase, useVsCode } from './utils/useVsCode';
-import { CompileResult, ExecuteResult } from '../../src/request/CompileResult'
+import { Response } from '../../src/request/CompileResult'
 import { VSCodePanels, VSCodePanelTab, VSCodePanelView, VSCodeProgressRing } from '@vscode/webview-ui-toolkit/react';
 
 const ansiUp = new AnsiUp();
-
-type Response = { compileResult: CompileResult, executeResult?: ExecuteResult };
 
 const changeFontSize = (node: HTMLElement, newSize: number) => {
   if (node.style.fontSize !== `${newSize}px`) {

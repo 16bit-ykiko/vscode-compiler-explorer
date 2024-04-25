@@ -1,10 +1,10 @@
-import { QueryCompilerInfo } from './CompilerInfo';
-import { ReadSource, ReadCMakeSource, WriteTemp, WriteTemps } from "./Utility";
+import { QueryCompilerInfo } from "./CompilerInfo";
+import { ReadSource, ReadText, ReadCMakeSource, WriteTemp, WriteTemps } from "./Utility";
 import { CompilerInstance, SingleFileInstance, MultiFileInstance, Filter, Tool, Library } from "../view/Instance";
 
 export class ClientStateCompiler {
-    id = '';
-    options = '';
+    id = "";
+    options = "";
     tools: Tool[] = [];
     libs: Library[] = [];
     filters?: Filter;
@@ -24,9 +24,9 @@ export class ClientStateExecutor {
 }
 
 export class ClientStateSession {
-    source = '';
-    filename = '';
-    language = 'c++';
+    source = "";
+    filename = "";
+    language = "c++";
     conformanceview = false;
     id: number | false = false;
     compilers: ClientStateCompiler[] = [];
@@ -44,22 +44,22 @@ export class ClientStateSession {
 export class MultifileFile {
     id: any = undefined;
     fileId = 0;
-    content = '';
+    content = "";
     editorId = -1;
-    langId = 'c++';
+    langId = "c++";
     isOpen = false;
     isIncluded = true;
     isMainSource = false;
-    filename: string = '';
+    filename: string = "";
 }
 
 export class ClientStateTree {
     id = 1;
-    cmakeArgs = '';
+    cmakeArgs = "";
     newFileId = 1;
     isCMakeProject = true;
-    customOutputFilename = 'main';
-    compilerLanguageId = 'c++';
+    customOutputFilename = "main";
+    compilerLanguageId = "c++";
     files: MultifileFile[] = [];
     compilers: ClientStateCompiler[] = [];
     executors: ClientStateExecutor[] = [];
@@ -88,7 +88,6 @@ export class ClientStateTree {
         cmakeFile.content = cmakeSource;
         cmakeFile.filename = "CMakeLists.txt";
         tree.files.push(cmakeFile);
-
 
         files.forEach((file) => {
             const multifile = new MultifileFile();
@@ -126,8 +125,7 @@ export class ClientState {
                     const index = filesCache.get(instance.input)!;
                     const session = clientState.sessions[index];
                     pushc(session, instance);
-                }
-                else {
+                } else {
                     const index = clientState.sessions.length;
                     const session = await ClientStateSession.from(index + 1, instance);
                     clientState.sessions.push(session);
@@ -136,11 +134,11 @@ export class ClientState {
             }
         }
 
-        // FIXME: 
+        // FIXME:
         // Currently, the Compiler Explorer only supports a single TreeEditor instance, which might change in the future.
         // So, at the moment, we only consider the case that there is only one tree.
 
-        const multis = instances.filter(instance => instance instanceof MultiFileInstance);
+        const multis = instances.filter((instance) => instance instanceof MultiFileInstance);
         if (multis.length > 0) {
             const editorId = filesCache.size + 1;
             const { session, tree } = await ClientStateTree.from(editorId, multis as MultiFileInstance[]);
@@ -158,10 +156,10 @@ export class ClientState {
                 const path = await WriteTemp(session.source);
 
                 const toSingle = async (compiler: ClientStateCompiler) => {
-                    const instance = new SingleFileInstance();
+                    const instance = await SingleFileInstance.create();
                     instance.input = path;
                     instance.compilerInfo = await QueryCompilerInfo(compiler.id);
-                    instance.options = compiler.options;
+                    instance.options = { value: compiler.options, isPath: false };
                     if (compiler.filters) {
                         instance.filters = compiler.filters;
                     }
@@ -170,9 +168,9 @@ export class ClientState {
 
                 await process(instances, session, toSingle);
             }
-        };
+        }
 
-        // FIXME: 
+        // FIXME:
         // Currently, the Compiler Explorer only supports a single TreeEditor instance, which might change in the future.
         // So, at the moment, we only consider the case that there is only one tree.
 
@@ -181,10 +179,10 @@ export class ClientState {
             const path = await WriteTemps(tree.files);
 
             const toMulti = async (compiler: ClientStateCompiler) => {
-                const instance = new MultiFileInstance();
+                const instance = await MultiFileInstance.create();
                 instance.src = path;
-                instance.cmakeArgs = tree.cmakeArgs;
-                instance.options = compiler.options;
+                instance.cmakeArgs = { value: tree.cmakeArgs, isPath: false };
+                instance.options = { value: compiler.options, isPath: false };
                 instance.compilerInfo = await QueryCompilerInfo(compiler.id);
                 if (compiler.filters) {
                     instance.filters = compiler.filters;
@@ -198,26 +196,27 @@ export class ClientState {
     }
 }
 
-
-type SessionLike = { compilers: ClientStateCompiler[], executors: ClientStateExecutor[] };
+type SessionLike = { compilers: ClientStateCompiler[]; executors: ClientStateExecutor[] };
 type Callback = (_: ClientStateCompiler) => Promise<CompilerInstance>;
 
 let internalId = 0;
 
-function pushc(session: SessionLike, instance: CompilerInstance) {
+async function pushc(session: SessionLike, instance: CompilerInstance) {
     const compiler = new ClientStateCompiler();
     const { compilerInfo, options, filters, exec, stdin } = instance;
     compiler.id = compilerInfo.id;
     compiler._internalid = internalId++;
-    compiler.options = options;
+    compiler.options = await ReadText(options);
     compiler.filters = filters;
     session.compilers.push(compiler);
 
-    if (compilerInfo.supportsExecute && filters.execute && (exec !== "" || stdin !== "")) {
+    const execText = await ReadText(exec);
+    const stdinText = await ReadText(stdin);
+    if (compilerInfo.supportsExecute && filters.execute && (execText !== "" || stdinText !== "")) {
         const executor = new ClientStateExecutor();
         executor.compiler = compiler;
-        executor.stdin = instance.stdin;
-        executor.arguments = instance.exec;
+        executor.stdin = stdinText;
+        executor.arguments = execText;
         session.executors.push(executor);
     }
 
@@ -225,31 +224,34 @@ function pushc(session: SessionLike, instance: CompilerInstance) {
 }
 
 function merge(instance: CompilerInstance, executor: ClientStateExecutor[]) {
-    const index = executor.findIndex(executor => executor.compiler.id === instance.compilerInfo.id);
+    const index = executor.findIndex((executor) => executor.compiler.id === instance.compilerInfo.id);
     if (index !== -1) {
         const exec = executor[index];
         instance.filters.execute = true;
-        instance.stdin = exec.stdin;
-        instance.exec = exec.arguments;
+        instance.stdin = { value: exec.stdin, isPath: false };
+        instance.exec = { value: exec.arguments, isPath: false };
         executor.splice(index, 1);
     }
 }
 
 async function process(instances: CompilerInstance[], session: SessionLike, callback: Callback) {
-
     const { compilers, executors } = session;
 
-    await Promise.all(compilers.map(async (compiler) => {
-        const instance = await callback(compiler);
-        merge(instance, executors);
-        instances.push(instance);
-    }));
+    await Promise.all(
+        compilers.map(async (compiler) => {
+            const instance = await callback(compiler);
+            merge(instance, executors);
+            instances.push(instance);
+        })
+    );
 
-    await Promise.all(executors.map(async (executor) => {
-        const instance = await callback(executor.compiler);
-        instance.filters.execute = true;
-        instance.stdin = executor.stdin;
-        instance.exec = executor.arguments;
-        instances.push(instance);
-    }));
-};
+    await Promise.all(
+        executors.map(async (executor) => {
+            const instance = await callback(executor.compiler);
+            instance.filters.execute = true;
+            instance.stdin = { value: executor.stdin, isPath: false };
+            instance.exec = { value: executor.arguments, isPath: false };
+            instances.push(instance);
+        })
+    );
+}

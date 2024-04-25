@@ -1,17 +1,17 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { logger, initLogger } from './request/Logger';
-import { register } from './view/Command';
-import { SetProxy } from './request/Utility';
-import { ClearWebview } from './view/WebView';
+import { logger, initLogger } from "./request/Logger";
+import { Register } from "./view/Command";
+import { SetProxy } from "./request/Utility";
+import { WebviewPanel } from "./view/WebView";
 
 export function activate(context: vscode.ExtensionContext) {
-	initLogger();
-	SetProxy();
-	register(context);
-	context.subscriptions.push(logger);
+    initLogger();
+    SetProxy();
+    Register(context);
 }
 
 export function deactivate() {
-	ClearWebview();
+    logger.dispose();
+    WebviewPanel.clear();
 }

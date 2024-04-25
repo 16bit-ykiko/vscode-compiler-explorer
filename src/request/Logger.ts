@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 class Logger {
     readonly logger: vscode.OutputChannel;
@@ -14,6 +14,11 @@ class Logger {
 
     error(message: string) {
         this.logger.appendLine(`Error: ${message}`);
+        this.logger.show();
+    }
+
+    internal_error(message: string) {
+        this.logger.appendLine(`Unexpected internal Error: ${message}, please report this issue.`);
         this.logger.show();
     }
 

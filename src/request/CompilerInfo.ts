@@ -19,15 +19,14 @@ const idToName = new Map<string, string>();
 
 export async function GetCompilerInfos() {
     if (compilerInfos.size === 0) {
-        const fieldNames = Object.keys(new CompilerInfo()).join(',');
-        const url = 'https://godbolt.org/api/compilers/c++?fields=' + fieldNames;
+        const fieldNames = Object.keys(new CompilerInfo()).join(",");
+        const url = "https://godbolt.org/api/compilers/c++?fields=" + fieldNames;
 
         await retry("CompilerInfo", async () => {
-            logger.info(`Start Request for CompilerInfo from ${url}`);
+            logger.info(`Request for CompilerInfo from ${url}`);
             const response = await axios.get(url);
-            logger.info(`Request for CompilerInfo succeeded.`);
             const infos = response.data as CompilerInfo[];
-            infos.forEach(info => {
+            infos.forEach((info) => {
                 compilerInfos.set(info.name, info);
                 idToName.set(info.id, info.name);
             });
@@ -42,8 +41,7 @@ export async function QueryCompilerInfo(name: string) {
         return infos.get(name)!;
     } else if (idToName.has(name)) {
         return infos.get(idToName.get(name)!)!;
-    }
-    else {
+    } else {
         throw Error("Unexcepted internal error: CompilerInfo not found, Please report this issue.");
     }
 }

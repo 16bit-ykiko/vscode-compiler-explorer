@@ -1,38 +1,43 @@
 import * as path from "path";
 import * as vscode from "vscode";
 
-export type OptionsConfig = {
-    "compiler": "x86-64 gcc 13.2",
-    "language": "c++",
-    "options": "-std=c++17",
-    "exec": "",
-    "stdin": "",
-    "cmakeArgs": "",
-    "src": "workplace",
-    "filters": {
-        "binaryObject": false,
-        "binary": false,
-        "execute": false,
-        "intel": true,
-        "demangle": true,
-        "labels": true,
-        "libraryCode": true,
-        "directives": true,
-        "commentOnly": true,
-        "trim": false,
-        "debugCalls": false
-    };
-};
+export interface FilterConfig {
+    skipASM: boolean;
+    binaryObject: boolean;
+    binary: boolean;
+    execute: boolean;
+    intel: boolean;
+    demangle: boolean;
+    labels: boolean;
+    libraryCode: boolean;
+    directives: boolean;
+    commentOnly: boolean;
+    trim: boolean;
+    debugCalls: boolean;
+}
 
-export type ColorConfig = {
-    "symbol": string;
-    "string": string;
-    "number": string;
-    "register": string;
-    "instruction": string;
-    "comment": string;
-    "operator": string;
-};
+export interface OptionsConfig {
+    compiler: string;
+    language: string;
+    options: string;
+    exec: string;
+    stdin: string;
+    cmakeArgs: string;
+    src: string;
+    input: string;
+    output: string;
+    filters: FilterConfig;
+}
+
+export interface ColorConfig {
+    symbol: string;
+    string: string;
+    number: string;
+    register: string;
+    instruction: string;
+    comment: string;
+    operator: string;
+}
 
 export class Config {
     static _config = vscode.workspace.getConfiguration("compiler-explorer");
@@ -50,7 +55,9 @@ export class Config {
     }
 }
 
-const readResourse = (name: string) => { return path.join(__filename, '..', '..', 'resources', name); };
+const readResourse = (name: string) => {
+    return path.join(__filename, "..", "..", "resources", name);
+};
 
 export const Icon = vscode.Uri.file(readResourse("icon.svg"));
 export const cmakeIcon = vscode.Uri.file(readResourse("cmake.svg"));
