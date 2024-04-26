@@ -20,6 +20,7 @@ const changeFontSize = (node: HTMLElement, newSize: number) => {
 };
 
 function App() {
+  const [fontSize, setFontSize] = useState(14.0);  // Zoom in/out with Ctrl + Mouse Wheel
   const [isLoaded, setIsLoaded] = useState(true);
   const [response, setResponse] = useState<Response>();
 
@@ -45,10 +46,28 @@ function App() {
 
   useEffect(() => sendMessage({ command: 'ready' }), [sendMessage]);
 
+  useEffect(() => {
+    const handleWheelEvent = (event: WheelEvent) => {
+      if (event.ctrlKey) {
+        event.preventDefault();
+        const zoomDelta = event.deltaY > 0 ? -0.5 : 0.5;
+        setFontSize((prevFontSize) => prevFontSize + zoomDelta);
+
+        const element = document.getElementById('view')!;
+        changeFontSize(element, fontSize + zoomDelta);
+      }
+    };
+
+    document.addEventListener('wheel', handleWheelEvent);
+
+    return () => {
+      document.removeEventListener('wheel', handleWheelEvent);
+    };
+  }, [fontSize]);
+
   const asmText2html = (text: string) => highlight(text);
   const consoleText2html = (text: string) => `<span class="compiler-explorer-output">${ansiUp.ansi_to_html(text)}</span>`;
 
-  //const compilerStderrRes = compileResult?.compileResult.stderr.map(x => ({ html: consoleText2html(x.text), lineNo: x.tag?.line }));
   const consoleOutput = (() => {
     const result: { html: string, lineNo: number | null }[] = [];
     for (const step of response?.compileResult?.buildsteps || []) {
@@ -82,51 +101,29 @@ function App() {
     sendMessage({ command: 'gotoLine', lineNo: line });
   };
 
-  // Zoom in/out with Ctrl + Mouse Wheel
-  const [fontSize, setFontSize] = useState(14.0);
-
-  useEffect(() => {
-    const handleWheelEvent = (event: WheelEvent) => {
-      if (event.ctrlKey) {
-        event.preventDefault();
-        const zoomDelta = event.deltaY > 0 ? -0.5 : 0.5;
-        setFontSize((prevFontSize) => prevFontSize + zoomDelta);
-
-        const element = document.getElementById('view')!;
-        changeFontSize(element, fontSize + zoomDelta);
-      }
-    };
-
-    document.addEventListener('wheel', handleWheelEvent);
-
-    return () => {
-      document.removeEventListener('wheel', handleWheelEvent);
-    };
-  }, [fontSize]);
+  if (isLoaded) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <VSCodeProgressRing />
+      </div>
+    );
+  }
 
   return (<>
-    {isLoaded
-      ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-          <VSCodeProgressRing />
-        </div>)
-      : (
-        <VSCodePanels id="view" aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ overflow: 'auto' }}>
-          <VSCodePanelTab id='stderr' className='compiler-explorer-output'>Console</VSCodePanelTab>
-          <VSCodePanelTab id='asm' className='compiler-explorer-output'>ASM</VSCodePanelTab>
-          <VSCodePanelTab id='exeout' className='compiler-explorer-output'>Stdout</VSCodePanelTab>
-          <VSCodePanelView id='stderr'>
-            <ResultViewer results={consoleOutput} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
-          </VSCodePanelView>
-          <VSCodePanelView id='asm'>
-            <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
-          </VSCodePanelView>
-          <VSCodePanelView id='stdout'>
-            <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
-          </VSCodePanelView>
-
-        </VSCodePanels>
-      )}
+    <VSCodePanels id="view" aria-label='Compiler Explorer' activeidChanged={(_, newValue) => activeId.current = newValue} style={{ height: '100vh' }}>
+      <VSCodePanelTab id='stderr' className='compiler-explorer-output'>Console</VSCodePanelTab>
+      <VSCodePanelTab id='asm' className='compiler-explorer-output'>ASM</VSCodePanelTab>
+      <VSCodePanelTab id='exeout' className='compiler-explorer-output'>Stdout</VSCodePanelTab>
+      <VSCodePanelView id='stderr'>
+        <ResultViewer results={consoleOutput} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.stderr = f} />
+      </VSCodePanelView>
+      <VSCodePanelView id='asm'>
+        <ResultViewer results={asmRes} onSelect={onSelect} text2html={asmText2html} ref={f => gotoLine.current.asm = f} />
+      </VSCodePanelView>
+      <VSCodePanelView id='stdout'>
+        <ResultViewer results={execStdoutRes} onSelect={onSelect} text2html={consoleText2html} ref={f => gotoLine.current.exeout = f} />
+      </VSCodePanelView>
+    </VSCodePanels>
   </>);
 }
 
