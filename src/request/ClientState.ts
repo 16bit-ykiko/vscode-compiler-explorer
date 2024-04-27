@@ -36,7 +36,7 @@ export class ClientStateSession {
         const session = new ClientStateSession();
         session.id = id;
         session.source = await ReadSource(instance.input);
-        pushc(session, instance);
+        await pushc(session, instance);
         return session;
     }
 }
@@ -213,7 +213,6 @@ async function pushc(session: SessionLike, instance: CompilerInstance) {
     const stdinText = await ReadText(stdin);
 
     if (compilerInfo.supportsExecute && filters.execute && (execText !== "" || stdinText !== "")) {
-        compiler.filters.execute = false;
         const executor = new ClientStateExecutor();
         executor.compiler = compiler;
         executor.stdin = stdinText;
