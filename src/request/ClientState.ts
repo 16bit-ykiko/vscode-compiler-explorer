@@ -153,15 +153,14 @@ export class ClientState {
         let instances: CompilerInstance[] = [];
         for (const session of this.sessions) {
             if (session.language === "c++") {
-                const path = await WriteTemp(session.source);
-
                 const toSingle = async (compiler: ClientStateCompiler) => {
+                    const path = await WriteTemp(session.source);
                     const instance = await SingleFileInstance.create();
                     instance.input = path;
                     instance.compilerInfo = await QueryCompilerInfo(compiler.id);
                     instance.options = { value: compiler.options, isPath: false };
                     if (compiler.filters) {
-                        instance.filters = compiler.filters;
+                        instance.filters = Filter.fromJSON(compiler.filters);
                     }
                     return instance;
                 };
@@ -185,7 +184,7 @@ export class ClientState {
                 instance.options = { value: compiler.options, isPath: false };
                 instance.compilerInfo = await QueryCompilerInfo(compiler.id);
                 if (compiler.filters) {
-                    instance.filters = compiler.filters;
+                    instance.filters = Filter.fromJSON(compiler.filters);
                 }
                 return instance;
             };
@@ -207,12 +206,14 @@ async function pushc(session: SessionLike, instance: CompilerInstance) {
     compiler.id = compilerInfo.id;
     compiler._internalid = internalId++;
     compiler.options = await ReadText(options);
-    compiler.filters = filters;
+    compiler.filters = filters.copy();
     session.compilers.push(compiler);
 
     const execText = await ReadText(exec);
     const stdinText = await ReadText(stdin);
+
     if (compilerInfo.supportsExecute && filters.execute && (execText !== "" || stdinText !== "")) {
+        compiler.filters.execute = false;
         const executor = new ClientStateExecutor();
         executor.compiler = compiler;
         executor.stdin = stdinText;
@@ -249,6 +250,7 @@ async function process(instances: CompilerInstance[], session: SessionLike, call
         executors.map(async (executor) => {
             const instance = await callback(executor.compiler);
             instance.filters.execute = true;
+            instance.filters.skipASM = true;
             instance.stdin = { value: executor.stdin, isPath: false };
             instance.exec = { value: executor.arguments, isPath: false };
             instances.push(instance);

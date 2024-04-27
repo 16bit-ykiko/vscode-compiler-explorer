@@ -2,7 +2,7 @@ import { Config } from "../request/Config";
 import { CompilerInfo, QueryCompilerInfo } from "../request/CompilerInfo";
 
 export class Filter {
-    skipASM?: boolean = false;
+    skipASM = false;
     binaryObject = false;
     binary = false;
     execute = false;
@@ -18,6 +18,13 @@ export class Filter {
     constructor() {
         const config = Config.defaultOptions().filters;
         Object.assign(this, config);
+    }
+
+    static fromJSON(json: any, skipASM: boolean = false) {
+        const filter = new Filter();
+        Object.assign(filter, json);
+        filter.skipASM = skipASM;
+        return filter;
     }
 
     copy() {
