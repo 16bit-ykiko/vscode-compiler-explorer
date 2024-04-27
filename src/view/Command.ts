@@ -41,6 +41,8 @@ export async function Register(context: vscode.ExtensionContext) {
     RegisterItem(context);
 
     context.subscriptions.push(treeView);
+
+    return { provider, treeView };
 }
 
 async function Resolve(context: vscode.ExtensionContext, instance: CompilerInstance) {
@@ -65,7 +67,7 @@ async function Resolve(context: vscode.ExtensionContext, instance: CompilerInsta
  * Register commands for the view
  * see that "menus": "view/title" in package.json
  */
-async function RegisterView(context: vscode.ExtensionContext) {
+function RegisterView(context: vscode.ExtensionContext) {
     const AddSingleInstance = vscode.commands.registerCommand("compiler-explorer.AddSingleInstance", async () => {
         provider.instances.push(await SingleFileInstance.create());
         provider.refresh();
@@ -130,7 +132,7 @@ async function RegisterView(context: vscode.ExtensionContext) {
  * Register commands for the instance
  * see that "menus": "view/item/context", "when": viewItem == instance, in package.json
  */
-async function RegisterInstance(context: vscode.ExtensionContext) {
+function RegisterInstance(context: vscode.ExtensionContext) {
     const Compile_ = vscode.commands.registerCommand("compiler-explorer.Compile", async (node: TreeNode) => {
         const instance = node.instance as CompilerInstance;
         try {
@@ -162,7 +164,7 @@ async function RegisterInstance(context: vscode.ExtensionContext) {
  * Register commands for the select
  * see that "menus": "view/item/context", "when": viewItem == select, in package.json
  */
-async function RegisterSelect(context: vscode.ExtensionContext) {
+function RegisterSelect(context: vscode.ExtensionContext) {
     const SelectCompiler = vscode.commands.registerCommand(
         "compiler-explorer.SelectCompiler",
         async (node: TreeNode) => {
@@ -188,7 +190,7 @@ async function RegisterSelect(context: vscode.ExtensionContext) {
  * Register commands for the text,
  * see that "menus": "view/item/context", "when": viewItem == text, in package.json
  */
-async function RegisterText(context: vscode.ExtensionContext) {
+function RegisterText(context: vscode.ExtensionContext) {
     const GetInput = vscode.commands.registerCommand("compiler-explorer.GetInput", async (node: TreeNode) => {
         const { attr, instance } = node;
         //@ts-ignore
@@ -242,7 +244,7 @@ async function RegisterText(context: vscode.ExtensionContext) {
 /**
  * Register commands for the item, see that "menus": "view/item/context" in package.json
  */
-async function RegisterItem(context: vscode.ExtensionContext) {
+function RegisterItem(context: vscode.ExtensionContext) {
     const SelectFile = vscode.commands.registerCommand("compiler-explorer.SelectFile", async (node: TreeNode) => {
         const uri = await vscode.window.showOpenDialog({
             canSelectMany: false,

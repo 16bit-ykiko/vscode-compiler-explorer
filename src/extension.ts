@@ -1,14 +1,24 @@
 import * as vscode from "vscode";
 
-import { logger, initLogger } from "./request/Logger";
 import { Register } from "./view/Command";
 import { SetProxy } from "./request/Utility";
 import { WebviewPanel } from "./view/WebView";
+import { logger, initLogger } from "./request/Logger";
+import { TreeViewProvider, TreeNode } from "./view/TreeView";
 
-export function activate(context: vscode.ExtensionContext) {
+interface API {
+    provider: TreeViewProvider;
+    treeView: vscode.TreeView<TreeNode>;
+    context: vscode.ExtensionContext;
+    panels: vscode.WebviewPanel[];
+}
+
+export async function activate(context: vscode.ExtensionContext) {
     initLogger();
     SetProxy();
-    Register(context);
+    const { provider, treeView } = await Register(context);
+    const panels = WebviewPanel.panels;
+    return { provider, treeView, context, panels };
 }
 
 export function deactivate() {
