@@ -1,7 +1,9 @@
-import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import axios from "axios";
+
+import { existsSync } from "fs";
+import { readFile, readdir, stat, mkdir, writeFile } from "fs/promises";
 
 import { logger } from "./Logger";
 import { Text } from "../view/Instance";
@@ -23,14 +25,12 @@ export async function retry<T>(messgae: string, fn: () => Promise<T>, maxTries: 
         try {
             return await fn();
         } catch (error: unknown) {
-            if (tries !== maxTries) {
+            if (tries !== maxTries && axios.isAxiosError(error)) {
                 logger.info(`Request failed, retrying for the ${tries + 1} time.`);
+                SetProxy();
                 tries += 1;
-                if (axios.isAxiosError(error)) {
-                    SetProxy();
-                }
             } else {
-                logger.error(`Request failed for ${messgae}, after ${tries} tries, error: ${error}`);
+                logger.error(`Request failed for ${messgae}, after ${tries} tries`);
                 throw error;
             }
         }
@@ -55,7 +55,7 @@ export function GetEditor(path: string): vscode.TextEditor {
     }
 }
 
-export async function ReadSource(path: string): Promise<string> {
+export async function ReadSource(path: string) {
     if (path === "active") {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
@@ -66,8 +66,8 @@ export async function ReadSource(path: string): Promise<string> {
         throw new Error("No active editor found");
     } else {
         logger.info(`Read source from file "${path}"`);
-        if (fs.existsSync(path)) {
-            return fs.readFileSync(path, "utf8");
+        if (existsSync(path)) {
+            return await readFile(path, "utf8");
         } else {
             const docs = vscode.workspace.textDocuments;
             for (const doc of docs) {
@@ -93,48 +93,54 @@ export async function ReadCMakeSource(src: string) {
     let files: { filename: string; contents: string }[] = [];
 
     const cmake = path.join(src, "CMakeLists.txt");
-    if (fs.existsSync(cmake)) {
+    if (existsSync(cmake)) {
         cmakeSource = await ReadSource(cmake);
-        for (const name of fs.readdirSync(src, { recursive: true })) {
-            const filename = name as string;
+        for (const filename of await readdir(src, { recursive: true })) {
             const fullname = path.join(src, filename);
-            const stats = fs.statSync(fullname);
+            const stats = await stat(fullname);
             if (stats.isFile()) {
                 // TODO: Filters files according to the setting.json
                 if (filename !== "CMakeLists.txt") {
-                    files.push({ filename: filename, contents: fs.readFileSync(fullname, "utf8") });
+                    files.push({ filename: filename, contents: await ReadSource(fullname) });
                 }
             }
         }
         return { cmakeSource, files };
     } else {
-        throw Error("CMakeLists.txt not found");
+        throw Error(`CMakeLists.txt not found in ${src}`);
     }
 }
 
-export async function WriteFile(path: string, contents: string) {
-    const uri = vscode.Uri.file(path);
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(contents, "utf8"));
-}
-
-export async function WriteTemp(contents: string) {
+async function CreateTempDir() {
     const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
     if (!workspacePath) {
         throw Error("No workspace folder found");
     }
 
     const dir = path.join(workspacePath, ".compiler-explorer");
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
+    if (!existsSync(dir)) {
+        await mkdir(dir);
     }
 
+    return dir;
+}
+
+export async function WriteFile(filename: string, content: string) {
+    logger.info(`Write to file: "${filename}"`);
+    await writeFile(filename, content, "utf8");
+    return filename;
+}
+
+export async function WriteTemp(contents: string) {
+    const dir = await CreateTempDir();
+
     let index = 1;
-    while (fs.existsSync(path.join(dir, `source${index}.cpp`))) {
+    while (existsSync(path.join(dir, `source${index}.cpp`))) {
         index += 1;
     }
 
     const filename = path.join(dir, `source${index}.cpp`);
-    fs.writeFileSync(filename, contents, "utf8");
+    await WriteFile(filename, contents);
 
     vscode.workspace.openTextDocument(filename).then((doc) => vscode.window.showTextDocument(doc));
 
@@ -142,30 +148,24 @@ export async function WriteTemp(contents: string) {
 }
 
 export async function WriteTemps(files: { filename: string; content: string }[]) {
-    const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
-    if (!workspacePath) {
-        throw Error("No workspace folder found");
-    }
-
-    const dir = path.join(workspacePath, ".compiler-explorer");
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir);
-    }
+    const dir = await CreateTempDir();
 
     let index = 1;
-    while (fs.existsSync(path.join(dir, `cmake${index}`))) {
+    while (existsSync(path.join(dir, `cmake${index}`))) {
         index += 1;
     }
 
     const src = path.join(dir, `cmake${index}`);
-    fs.mkdirSync(src);
+    await mkdir(src);
 
     for (const file of files) {
-        const fullname = path.join(src, file.filename);
-        if (!fs.existsSync(path.dirname(fullname))) {
-            fs.mkdirSync(path.dirname(fullname), { recursive: true });
+        const filename = path.normalize(file.filename);
+        const fullname = path.join(src, filename);
+        const dirname = path.dirname(fullname);
+        if (!existsSync(dirname)) {
+            await mkdir(dirname, { recursive: true });
         }
-        fs.writeFileSync(fullname, file.content, "utf8");
+        await WriteFile(fullname, file.content);
     }
 
     vscode.workspace
