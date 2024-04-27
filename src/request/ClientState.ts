@@ -214,6 +214,7 @@ async function pushc(session: SessionLike, instance: CompilerInstance) {
 
     if (compilerInfo.supportsExecute && filters.execute && (execText !== "" || stdinText !== "")) {
         const executor = new ClientStateExecutor();
+        compiler.filters.execute = false;
         executor.compiler = compiler;
         executor.stdin = stdinText;
         executor.arguments = execText;
