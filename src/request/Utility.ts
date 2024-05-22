@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as vscode from "vscode";
+import { Url } from 'url';
 import axios from "axios";
 
 import { existsSync } from "fs";
@@ -9,12 +10,23 @@ import { logger } from "./Logger";
 import { Text } from "../view/Instance";
 
 export function SetProxy() {
-    const vscodeProxy = vscode.workspace.getConfiguration("http").get<string>("proxy");
+    const vscodeProxy = vscode.workspace.getConfiguration().get<string>("http.proxy");
     if (vscodeProxy) {
+        const proxyUrl = new URL(vscodeProxy);
+        // Maybe it has not port, e.g. vscodeProxy = "http://127.0.0.1"
+        const defaultPort = proxyUrl.protocol === 'http:' ? '80' : proxyUrl.protocol === 'https:' ? '443' : '';
+        const proxyPort = proxyUrl.port || defaultPort;
+        // "https:" or "http:", Replace to "https" or "http"
+        const proxyProtocol = proxyUrl.protocol === 'http:' ? 'http' : proxyUrl.protocol === 'https:' ? 'https' : '';
         axios.defaults.proxy = {
-            host: new URL(vscodeProxy).hostname,
-            port: parseInt(new URL(vscodeProxy).port),
-            protocol: new URL(vscodeProxy).protocol,
+            host: proxyUrl.hostname,
+            port: parseInt(proxyPort, 10), // to decimal
+            protocol: proxyProtocol,
+            // If both username and password are not empty
+            auth: proxyUrl.username && proxyUrl.password ? {
+                username: proxyUrl.username,
+                password: proxyUrl.password
+            } : undefined
         };
     }
 }
